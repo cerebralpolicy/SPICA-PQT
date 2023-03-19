@@ -119,6 +119,12 @@ namespace SPICA.Formats.CtrH3D
 
         public static void Save(Stream FS, H3D Scene)
         {
+            if (Scene.BackwardCompatibility == 7)
+            {
+                foreach (H3DModel Model in Scene.Models)
+                    PokemonBBoxGen.CreateModelBBox(Model);
+            }
+
             H3DHeader Header = new H3DHeader();
 
             H3DRelocator Relocator = new H3DRelocator(FS, Header);
