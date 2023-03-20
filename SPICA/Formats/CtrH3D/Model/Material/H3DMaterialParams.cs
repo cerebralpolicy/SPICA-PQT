@@ -123,7 +123,8 @@ namespace SPICA.Formats.CtrH3D.Model.Material
 
         public float PolygonOffsetUnit;
 
-        [RepeatPointer] private uint[] FragmentShaderCommands;
+        [IfVersion(CmpOp.Gequal, 7)][RepeatPointer] private uint[] FragmentShaderCommands;
+        [IfVersion(CmpOp.Less, 7)] private uint[] FragmentShaderCommandsCompat;
 
         public string LUTDist0TableName;
         public string LUTDist1TableName;
@@ -383,6 +384,8 @@ namespace SPICA.Formats.CtrH3D.Model.Material
 
         void ICustomSerialization.Deserialize(BinaryDeserializer Deserializer)
         {
+            if (FragmentShaderCommandsCompat != null) FragmentShaderCommands = FragmentShaderCommandsCompat;
+
             PICACommandReader Reader;
 
             Reader = new PICACommandReader(LUTConfigCommands);
