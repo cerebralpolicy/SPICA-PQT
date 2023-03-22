@@ -12,15 +12,15 @@ namespace SPICA.Formats.CtrH3D.Animation
 {
     public class H3DFloatKeyFrameGroup : H3DAnimationCurve, ICustomSerialization
     {
-        [IfVersion(CmpOp.Gequal, 0x20)] public H3DInterpolationType InterpolationType;
-        [IfVersion(CmpOp.Gequal, 0x20)] public KeyFrameQuantization Quantization;
+        [IfVersion(CmpOp.Greater, 0x20)] public H3DInterpolationType InterpolationType;
+        [IfVersion(CmpOp.Greater, 0x20)] public KeyFrameQuantization Quantization;
 
-        [IfVersion(CmpOp.Gequal, 0x20)] private ushort Count;
+        [IfVersion(CmpOp.Greater, 0x20)] private ushort Count;
 
-        [IfVersion(CmpOp.Gequal, 0x20)] private float ValueScale;
-        [IfVersion(CmpOp.Gequal, 0x20)] private float ValueOffset;
-        [IfVersion(CmpOp.Gequal, 0x20)] private float FrameScale;
-        [IfVersion(CmpOp.Gequal, 0x20)] private float InvDuration;
+        [IfVersion(CmpOp.Greater, 0x20)] private float ValueScale;
+        [IfVersion(CmpOp.Greater, 0x20)] private float ValueOffset;
+        [IfVersion(CmpOp.Greater, 0x20)] private float FrameScale;
+        [IfVersion(CmpOp.Greater, 0x20)] private float InvDuration;
 
         [Ignore] public readonly List<KeyFrame> KeyFrames;
 
@@ -33,7 +33,7 @@ namespace SPICA.Formats.CtrH3D.Animation
 
         void ICustomSerialization.Deserialize(BinaryDeserializer Deserializer)
         {
-            if (Deserializer.FileVersion < 0x20)
+            if (Deserializer.FileVersion <= 0x20)
             {
                 /*
                  * Older version have a pointer within the curve data,
