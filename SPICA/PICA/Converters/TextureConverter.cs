@@ -262,7 +262,7 @@ namespace SPICA.PICA.Converters
             return GetBitmap(Output, Width, Height);
         }
 
-        static byte[] FlipData(byte[] Buffer, int Width, int Height)
+        public static byte[] FlipData(byte[] Buffer, int Width, int Height)
         {
             byte[] Output = new byte[Buffer.Length];
 
