@@ -1,4 +1,5 @@
 ﻿using SPICA.PICA.Commands;
+using SPICA.Serialization;
 using SPICA.Serialization.Attributes;
 
 namespace SPICA.Formats.CtrGfx.Texture
@@ -15,8 +16,8 @@ namespace SPICA.Formats.CtrGfx.Texture
 
         public int MipmapSize;
 
-        private uint TextureObj;
-        private uint LocationFlag;
+        internal uint TextureObj;
+        internal uint LocationFlag;
 
         public PICATextureFormat HwFormat;
 

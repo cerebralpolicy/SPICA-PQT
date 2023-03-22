@@ -14,6 +14,10 @@ namespace SPICA.Formats.CtrGfx.AnimGroup
     [TypeChoice(0x20000000u, typeof(GfxAnimGroupTexMapper))]
     [TypeChoice(0x40000000u, typeof(GfxAnimGroupBone))]
     [TypeChoice(0x80000000u, typeof(GfxAnimGroupTexCoord))]
+
+    [TypeChoice(0x00800000u, typeof(GfxAnimGroupLight))]
+    [TypeChoice(0x00100000u, typeof(GfxAnimGroupLight2))]
+
     public class GfxAnimGroupElement : INamed
     {
         private string _Name;

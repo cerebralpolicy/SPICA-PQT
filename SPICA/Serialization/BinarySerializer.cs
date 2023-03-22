@@ -498,7 +498,7 @@ namespace SPICA.Serialization
             }
         }
 
-        private void AddReference(Type Type, RefValue Ref)
+        internal void AddReference(Type Type, RefValue Ref)
         {
             if (Ref.Info?.IsDefined(typeof(SectionAttribute)) ?? false)
             {
