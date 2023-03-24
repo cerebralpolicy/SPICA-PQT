@@ -24,6 +24,10 @@ namespace SPICA.Formats.CtrH3D.Model.Material
         public List<GfxShaderParam> BcresShaderParams = new List<GfxShaderParam>();
 
         [Ignore]
+        public GfxFragOpDepthFlags BcresDepthFlags = GfxFragOpDepthFlags.IsTestEnabled | GfxFragOpDepthFlags.IsMaskEnabled;
+
+        
+        [Ignore]
         [JsonIgnore]
         public EventHandler UpdateShaders;
         [Ignore]

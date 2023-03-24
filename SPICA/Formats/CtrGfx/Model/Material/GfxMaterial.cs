@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using SPICA.PICA.Commands;
 using Newtonsoft.Json;
 using SPICA.Formats.CtrH3D.Model.Material;
+using System;
 
 namespace SPICA.Formats.CtrGfx.Model.Material
 {
@@ -136,7 +137,14 @@ namespace SPICA.Formats.CtrGfx.Model.Material
             this.Rasterization.PolygonOffsetUnit = material.MaterialParams.PolygonOffsetUnit;
 
             this.FragmentOperation.Depth.ColorMask = material.MaterialParams.DepthColorMask;
-            this.FragmentOperation.Depth.Flags = GfxFragOpDepthFlags.IsTestEnabled | GfxFragOpDepthFlags.IsMaskEnabled;
+            this.FragmentOperation.Depth.Flags = material.BcresDepthFlags;
+
+            //BCRES 
+            this.FragmentOperation.Depth.ColorMask.RedWrite = false;
+            this.FragmentOperation.Depth.ColorMask.GreenWrite = false;
+            this.FragmentOperation.Depth.ColorMask.BlueWrite = false;
+            this.FragmentOperation.Depth.ColorMask.AlphaWrite = false;
+            this.FragmentOperation.Depth.ColorMask.DepthWrite = false;
 
             this.FragmentOperation.Blend.Mode = material.MaterialParams.BlendMode;
             this.FragmentOperation.Blend.ColorOperation = material.MaterialParams.ColorOperation;
@@ -396,6 +404,13 @@ namespace SPICA.Formats.CtrGfx.Model.Material
             Mat.MaterialParams.PolygonOffsetUnit = this.Rasterization.PolygonOffsetUnit;
 
             Mat.MaterialParams.DepthColorMask = this.FragmentOperation.Depth.ColorMask;
+            Mat.BcresDepthFlags = this.FragmentOperation.Depth.Flags;
+
+            Mat.MaterialParams.DepthColorMask.RedWrite = true;
+            Mat.MaterialParams.DepthColorMask.GreenWrite = true;
+            Mat.MaterialParams.DepthColorMask.BlueWrite = true;
+            Mat.MaterialParams.DepthColorMask.AlphaWrite = true;
+            Mat.MaterialParams.DepthColorMask.DepthWrite = true;
 
             Mat.MaterialParams.ColorBufferRead = false;
             Mat.MaterialParams.ColorBufferWrite = true;
