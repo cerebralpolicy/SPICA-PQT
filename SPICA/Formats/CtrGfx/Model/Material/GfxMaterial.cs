@@ -397,12 +397,6 @@ namespace SPICA.Formats.CtrGfx.Model.Material
 
             Mat.MaterialParams.DepthColorMask = this.FragmentOperation.Depth.ColorMask;
 
-            Mat.MaterialParams.DepthColorMask.RedWrite = true;
-            Mat.MaterialParams.DepthColorMask.GreenWrite = true;
-            Mat.MaterialParams.DepthColorMask.BlueWrite = true;
-            Mat.MaterialParams.DepthColorMask.AlphaWrite = true;
-            Mat.MaterialParams.DepthColorMask.DepthWrite = true;
-
             Mat.MaterialParams.ColorBufferRead = false;
             Mat.MaterialParams.ColorBufferWrite = true;
 
