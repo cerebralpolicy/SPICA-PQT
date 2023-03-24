@@ -46,6 +46,8 @@ namespace SPICA.Formats.CtrGfx.Model
 
             this.Header.MagicNumber = 0x4C444D43;
             this.Header.Revision = 150994944;
+
+            Flags = GfxModelFlags.IsVisible;
         }
 
         public H3DModel ToH3D()

@@ -19,6 +19,7 @@ namespace SPICA.Formats.CtrGfx.Model.Material
         public GfxTextureReference()
         {
             this.Header.MagicNumber = 0x424F5854;
+            this.Header.Revision = 0x05000000u;
         }
     }
 }

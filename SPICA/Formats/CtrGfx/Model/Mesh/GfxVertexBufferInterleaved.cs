@@ -9,7 +9,7 @@ namespace SPICA.Formats.CtrGfx.Model.Mesh
         private uint BufferObj;
         private uint LocationFlag;
 
-        [Section((uint)GfxSectionId.Image, Padding = 0x10)] public byte[] RawBuffer;
+        [Section((uint)GfxSectionId.Image, Padding = 4)] public byte[] RawBuffer;
 
         private uint LocationPtr;
         private uint MemoryArea;

@@ -53,7 +53,7 @@ namespace SPICA.Formats.CtrGfx.Model.Mesh
             set => _MeshNodeName = value ?? throw Exceptions.GetNullException("MeshNodeName");
         }
 
-        private ulong RenderKeyCache;
+        private uint RenderKeyCache;
         private uint  CommandAlloc;
         private uint Unk1;
         private uint Unk2;

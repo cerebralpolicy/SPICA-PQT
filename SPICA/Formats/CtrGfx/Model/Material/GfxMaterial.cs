@@ -180,6 +180,21 @@ namespace SPICA.Formats.CtrGfx.Model.Material
                     minFilter = PICATextureFilter.Nearest;
                     mipFilter = PICATextureFilter.Nearest;
                 }
+                if (texMap.MinFilter == H3DTextureMinFilter.LinearMipmapLinear)
+                {
+                    minFilter = PICATextureFilter.Linear;
+                    mipFilter = PICATextureFilter.Linear;
+                }
+                if (texMap.MinFilter == H3DTextureMinFilter.NearestMipmapLinear)
+                {
+                    minFilter = PICATextureFilter.Nearest;
+                    mipFilter = PICATextureFilter.Linear;
+                }
+                if (texMap.MinFilter == H3DTextureMinFilter.LinearMipmapNearest)
+                {
+                    minFilter = PICATextureFilter.Linear;
+                    mipFilter = PICATextureFilter.Nearest;
+                }
 
                 this.TextureMappers[TMIndex] = new GfxTextureMapper()
                 {
