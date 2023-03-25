@@ -4,12 +4,15 @@ using System;
 
 namespace SPICA.Formats.CtrGfx.Fog
 {
-    public class GfxFog : INamed
+    public class GfxFog : GfxNodeTransform
     {
-        public string Name
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
+        public float ColorR;
+        public float ColorG;
+        public float ColorB;
+
+        public float Density; //Unsure
+
+        public uint Near;
+        public uint Far;
     }
 }
