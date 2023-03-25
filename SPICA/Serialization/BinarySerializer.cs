@@ -1,5 +1,7 @@
 ﻿using SPICA.Formats.Common;
 using SPICA.Formats.CtrGfx;
+using SPICA.Formats.CtrGfx.Model;
+using SPICA.Formats.GFL2.Model;
 using SPICA.Math3D;
 using SPICA.Serialization.Attributes;
 using SPICA.Serialization.Serializer;
@@ -11,6 +13,7 @@ using System.IO;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
 
 namespace SPICA.Serialization
@@ -99,11 +102,13 @@ namespace SPICA.Serialization
 
             WriteSection(Section.Values);
 
-            //String table
+            //String table. Align for the image block
             if (IsGfx && (GfxSectionId)sectionID == GfxSectionId.Strings)
             {
-                Align(128);
-                Writer.Write(new byte[8]);
+                int alignment = 128;
+                var size = (-(int)(Writer.BaseStream.Position + 8) % alignment + alignment) % alignment;
+
+                Writer.Write(new byte[size]);
             }
 
             //Set section position and lengths, where:
@@ -133,8 +138,15 @@ namespace SPICA.Serialization
 
         private void WriteSection(List<RefValue> Values, int Start = 0)
         {
+            //Write list offsets first
+            WriteListOffsets(Values, Start);
+
             for (int Index = Start; Index < Values.Count; Index++)
             {
+                //Skip list offsets as they have been written 
+                if (Values[Index].Info != null && IsList(Values[Index].Info.FieldType))
+                    continue;
+
                 CurrentValue = Values[Index];
                 WriteValue(Values[Index]);
             }
@@ -143,12 +155,24 @@ namespace SPICA.Serialization
 
             for (int Index = Start; Index < Values.Count; Index++)
             {
-                WriteSection(Values[Index].Childs);
+                WriteSection(Values[Index].Childs, 0);
             }
 
             if (Values.Count > LastIndex)
             {
                 WriteSection(Values, LastIndex);
+            }
+        }
+
+        private void WriteListOffsets(List<RefValue> Values, int Start = 0, string ind = "")
+        {
+            for (int Index = Start; Index < Values.Count; Index++)
+            {
+                if (Values[Index].Info != null && IsList(Values[Index].Info.FieldType))
+                {
+                    CurrentValue = Values[Index];
+                    WriteValue(Values[Index]);
+                }
             }
         }
 

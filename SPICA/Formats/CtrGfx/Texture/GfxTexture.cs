@@ -21,6 +21,11 @@ namespace SPICA.Formats.CtrGfx.Texture
 
         public PICATextureFormat HwFormat;
 
+        public GfxTexture()
+        {
+            this.Header.Revision = 83886080;
+        }
+
         public static GfxTexture FromH3D(CtrH3D.Texture.H3DTexture texture)
         {
             GfxTextureImage image = new GfxTextureImage();
