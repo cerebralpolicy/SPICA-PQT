@@ -240,12 +240,21 @@ namespace SPICA.Serialization
                 WriteObject(Value);
             }
 
+            if (Value is byte[])
+                AddObjInfo(Value, Position);
+
             //Avoid writing the same Object more than once
             if (Type.IsClass) AddObjInfo(Value, Position);
         }
 
         private void AddObjInfo(object Value, long Position)
         {
+            if (Value is byte[])
+            {
+                if (ObjPointers.Keys.Any(x => (x is byte[] && ((byte[])x).SequenceEqual((byte[])Value))))
+                    return;
+            }
+
             if (!ObjPointers.ContainsKey(Value))
             {
                 ObjPointers.Add(Value, new ObjectInfo()
@@ -394,7 +403,15 @@ namespace SPICA.Serialization
                 Length   = 0
             };
 
-            if (ObjPointers.ContainsKey(Value))
+            //A fix for shader data. Check if byte[] exists in the pointer list, then point to that instead
+            //A shader can point to the same shader data
+            if (Info?.Name == "Program" && Value is byte[])
+            {
+                var existing = ObjPointers.Where(x => (x.Key is byte[] && ((byte[])x.Key).SequenceEqual((byte[])Value))).ToList();
+                if (existing.Count > 0)
+                    Output = existing[0].Value;
+            }
+            else if (ObjPointers.ContainsKey(Value))
             {
                 Output = ObjPointers[Value];
             }

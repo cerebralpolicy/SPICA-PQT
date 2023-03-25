@@ -125,7 +125,13 @@ namespace SPICA.Formats.CtrH3D
                     PokemonBBoxGen.CreateModelBBox(Model);
             }
 
-            H3DHeader Header = new H3DHeader();
+            //Shader fixes
+            foreach (H3DShader shader in Scene.Shaders)
+            {
+                shader.Program = Scene.Shaders.FirstOrDefault(x => x.Name == shader.Name).Program;
+            }
+
+                H3DHeader Header = new H3DHeader();
 
             H3DRelocator Relocator = new H3DRelocator(FS, Header);
 
