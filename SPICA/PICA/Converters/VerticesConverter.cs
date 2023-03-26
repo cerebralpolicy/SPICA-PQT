@@ -80,6 +80,22 @@ namespace SPICA.PICA.Converters
 
                     if (Mesh.FixedAttributes != null)
                     {
+                        foreach (PICAFixedAttribute Attr in Mesh.FixedAttributes)
+                        {
+                            switch (Attr.Name)
+                            {
+                                case PICAAttributeName.Normal:
+                                    Out.Normal = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
+                                    break;
+                                case PICAAttributeName.Tangent:
+                                    Out.Tangent = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
+                                    break;
+                                case PICAAttributeName.TexCoord0:
+                                    Out.TexCoord0 = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
+                                    break;  
+                            }
+                        }
+
                         bool HasFixedIndices = Mesh.FixedAttributes.Any(x => x.Name == PICAAttributeName.BoneIndex);
                         bool HasFixedWeights = Mesh.FixedAttributes.Any(x => x.Name == PICAAttributeName.BoneWeight);
 

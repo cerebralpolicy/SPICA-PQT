@@ -207,9 +207,15 @@ namespace SPICA.Formats.Generic.COLLADA
 
                     Geometry.mesh.triangles.Set_p(indices.ToArray());
 
-                    foreach (PICAAttribute Attr in Mesh.Attributes)
+                    List<PICAAttributeName> attributes = new List<PICAAttributeName>();
+                    if (Mesh.Attributes != null)
+                        attributes.AddRange(Mesh.Attributes.Select(x => x.Name));
+                    if (Mesh.FixedAttributes != null)
+                        attributes.AddRange(Mesh.FixedAttributes.Select(x => x.Name));
+
+                    foreach (PICAAttributeName Attr in attributes)
                     {
-                        if (Attr.Name >= PICAAttributeName.BoneIndex) continue;
+                        if (Attr >= PICAAttributeName.BoneIndex) continue;
 
                         string[] Values = new string[Vertices.Length];
 
@@ -217,7 +223,7 @@ namespace SPICA.Formats.Generic.COLLADA
                         {
                             PICAVertex v = Vertices[Index];
 
-                            switch (Attr.Name)
+                            switch (Attr)
                             {
                                 case PICAAttributeName.Position: Values[Index] = DAEUtils.Vector3Str(v.Position); break;
                                 case PICAAttributeName.Normal: Values[Index] = DAEUtils.Vector3Str(v.Normal); break;
@@ -231,7 +237,7 @@ namespace SPICA.Formats.Generic.COLLADA
 
                         int Elements = 0;
 
-                        switch (Attr.Name)
+                        switch (Attr)
                         {
                             case PICAAttributeName.Position: Elements = 3; break;
                             case PICAAttributeName.Normal: Elements = 3; break;
@@ -244,7 +250,7 @@ namespace SPICA.Formats.Generic.COLLADA
 
                         DAESource Source = new DAESource();
 
-                        Source.name = $"{MeshName}_{Attr.Name}";
+                        Source.name = $"{MeshName}_{Attr}";
                         Source.id = $"{Source.name}_id";
 
                         Source.float_array = new DAEArray()
@@ -272,11 +278,11 @@ namespace SPICA.Formats.Generic.COLLADA
 
                         Geometry.mesh.source.Add(Source);
 
-                        if (Attr.Name < PICAAttributeName.Color)
+                        if (Attr < PICAAttributeName.Color)
                         {
                             string Semantic = string.Empty;
 
-                            switch (Attr.Name)
+                            switch (Attr)
                             {
                                 case PICAAttributeName.Position: Semantic = "POSITION"; break;
                                 case PICAAttributeName.Normal: Semantic = "NORMAL"; break;
@@ -285,13 +291,13 @@ namespace SPICA.Formats.Generic.COLLADA
 
                             Geometry.mesh.vertices.AddInput(Semantic, $"#{Source.id}");
                         }
-                        else if (Attr.Name == PICAAttributeName.Color)
+                        else if (Attr == PICAAttributeName.Color)
                         {
                             Geometry.mesh.triangles.AddInput("COLOR", $"#{Source.id}", 0);
                         }
                         else
                         {
-                            Geometry.mesh.triangles.AddInput("TEXCOORD", $"#{Source.id}", 0, (uint)Attr.Name - 4);
+                            Geometry.mesh.triangles.AddInput("TEXCOORD", $"#{Source.id}", 0, (uint)Attr - 4);
                         }
                     } //Attributes Loop
 
