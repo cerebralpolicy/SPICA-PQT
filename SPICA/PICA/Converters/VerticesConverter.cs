@@ -90,9 +90,18 @@ namespace SPICA.PICA.Converters
                                 case PICAAttributeName.Tangent:
                                     Out.Tangent = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
                                     break;
+                                case PICAAttributeName.Color:
+                                    Out.Color = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
+                                    break;
                                 case PICAAttributeName.TexCoord0:
                                     Out.TexCoord0 = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
-                                    break;  
+                                    break;
+                                case PICAAttributeName.TexCoord1:
+                                    Out.TexCoord1 = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
+                                    break;
+                                case PICAAttributeName.TexCoord2:
+                                    Out.TexCoord2 = new Vector4(Attr.Value.X, Attr.Value.Y, Attr.Value.Z, Attr.Value.W);
+                                    break;
                             }
                         }
 
