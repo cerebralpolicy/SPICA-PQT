@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SPICA.Rendering.Shaders
 {
-    class ShaderGenerator
+    public class ShaderGenerator
     {
         public const string BoolsName = "BoolUniforms";
 

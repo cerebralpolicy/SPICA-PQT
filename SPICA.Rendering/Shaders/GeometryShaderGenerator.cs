@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SPICA.Rendering.Shaders
 {
-    class GeometryShaderGenerator : ShaderGenerator
+    public class GeometryShaderGenerator : ShaderGenerator
     {
         private uint EmitFlags;
 

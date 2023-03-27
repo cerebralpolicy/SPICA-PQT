@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SPICA.Rendering.Shaders
 {
-    class VertexShaderGenerator : ShaderGenerator
+    public class VertexShaderGenerator : ShaderGenerator
     {
         public VertexShaderGenerator(ShaderBinary SHBin) : base(SHBin) { }
 

@@ -553,7 +553,8 @@ namespace SPICA.Rendering.Shaders
                         Texture = $"texture(TextureCube, {TexCoord0}.xyz)";
                         break;
                     case H3DTextureMappingType.ProjectionMap:
-                        Texture = $"textureProj(Textures[{Index}], {TexCoord0})";
+                        Texture = $"texture(TextureCube, {TexCoord0}.xyz)";
+                        //Texture = $"textureProj(Textures[{Index}], vec3({TexCoord0}.xy, 0))";
                         break;
                     default:
                         Texture = $"texture(Textures[{Index}], {TexCoord0}.xy)";
