@@ -102,7 +102,7 @@ namespace SPICA.Formats.CtrH3D.LUT
                 int Value = (int)(_Table[Index] * 0xfff);
                 int Diff = (int)(Difference * 0x7ff);
 
-                QuantizedValues[Index] = (uint)(Value | (Diff << 12)) & 0xffffff;
+                QuantizedValues[Index] = (uint)(Value) & 0xffffff;
             }
 
             PICACommandWriter Writer = new PICACommandWriter();

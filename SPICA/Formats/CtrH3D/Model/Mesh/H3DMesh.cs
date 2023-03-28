@@ -157,8 +157,8 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
             bool isPkmn = Params.ShaderReference.Contains("PokePack") || 
                           Params.ShaderReference.Contains("BattleChar") || isPokemon;
 
-            bool Quat  = Attributes.Any(x => x.Name == PICAAttributeName.Normal);
-            bool VertA = Attributes.Any(x => x.Name == PICAAttributeName.Color);
+            bool Quat  = FixedAttributes.Any(x => x.Name == PICAAttributeName.Normal) || Attributes.Any(x => x.Name == PICAAttributeName.Normal);
+            bool VertA = FixedAttributes.Any(x => x.Name == PICAAttributeName.Color) || Attributes.Any(x => x.Name == PICAAttributeName.Color);
             bool BoneW = Attributes.Any(x => x.Name == PICAAttributeName.BoneWeight);
 
             bool IsTex0 = Material.EnabledTextures[0];

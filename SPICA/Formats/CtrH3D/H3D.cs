@@ -53,6 +53,9 @@ namespace SPICA.Formats.CtrH3D
 
         [Ignore] public H3DFlags Flags;
 
+        public int UninitShaderDataSize;
+        public int UninitShaderCommandSize;
+
         public H3D()
         {
             Models               = new H3DDict<H3DModel>();
@@ -99,6 +102,28 @@ namespace SPICA.Formats.CtrH3D
 
             H3D Scene = Deserializer.Deserialize<H3D>();
 
+            List<H3DShader> shaderList = new List<H3DShader>();
+            foreach (H3DShader shader in Scene.Shaders)
+            {
+                if (!shaderList.Any(x => x.Program.SequenceEqual(shader.Program)))
+                    shaderList.Add(shader);
+            }
+
+            int totalLen = 0;
+            foreach (H3DShader shader in Scene.Shaders)
+            {
+                var bin = shader.ToBinary();
+                totalLen += bin.Executable.Length / 4;
+                foreach (var p in bin.Programs)
+                {
+                    totalLen += 4 * 0x14;
+                    totalLen += 44 * 8;
+                }
+            }
+
+            Scene.UninitShaderDataSize = Header.UnInitDataLength;
+            Scene.UninitShaderCommandSize = Header.UnInitCommandsLength;
+
             Scene.BackwardCompatibility = Header.BackwardCompatibility;
             Scene.ForwardCompatibility  = Header.ForwardCompatibility;
 
@@ -131,7 +156,7 @@ namespace SPICA.Formats.CtrH3D
                 shader.Program = Scene.Shaders.FirstOrDefault(x => x.Name == shader.Name).Program;
             }
 
-                H3DHeader Header = new H3DHeader();
+            H3DHeader Header = new H3DHeader();
 
             H3DRelocator Relocator = new H3DRelocator(FS, Header);
 
@@ -172,12 +197,16 @@ namespace SPICA.Formats.CtrH3D
 
             Header.Flags = Scene.Flags;
 
+            Header.UnInitDataLength = Scene.UninitShaderDataSize;
+            Header.UnInitCommandsLength = Scene.UninitShaderCommandSize;
+
             Serializer.Serialize(Scene);
 
             Header.AddressCount = (ushort)RawData.Values.Count;
             Header.AddressCount += (ushort)RawExt.Values.Count;
 
-            Header.UnInitDataLength = Header.AddressCount * 4;
+            if (Scene.Shaders.Count == 0)
+                Header.UnInitDataLength = Header.AddressCount * 4;
 
             Header.ContentsAddress = Contents.Position;
             Header.StringsAddress = Strings.Position;
