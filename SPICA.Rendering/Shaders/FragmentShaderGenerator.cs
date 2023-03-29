@@ -547,18 +547,7 @@ namespace SPICA.Rendering.Shaders
 
             if (Index == 0)
             {
-                switch (Params.TextureCoords[0].MappingType)
-                {
-                    case H3DTextureMappingType.CameraCubeEnvMap:
-                        Texture = $"texture(TextureCube, {TexCoord0}.xyz)";
-                        break;
-                    case H3DTextureMappingType.ProjectionMap:
-                        Texture = $"textureProj(Textures[{Index}], {TexCoord0}.xyz)";
-                        break;
-                    default:
-                        Texture = $"texture(Textures[{Index}], {TexCoord0}.xy)";
-                        break;
-                }
+                Texture = CalculateTexture(Index, TexCoord0); ;
             }
             else
             {
@@ -575,12 +564,25 @@ namespace SPICA.Rendering.Shaders
                 switch (CoordIndex)
                 {
                     default:
-                    case 0: Texture = $"texture(Textures[{Index}], {TexCoord0}.xy)"; break;
-                    case 1: Texture = $"texture(Textures[{Index}], {TexCoord1}.xy)"; break;
-                    case 2: Texture = $"texture(Textures[{Index}], {TexCoord2}.xy)"; break;
+                    case 0: Texture = CalculateTexture(Index, TexCoord0); break;
+                    case 1: Texture = CalculateTexture(Index, TexCoord1); break;
+                    case 2: Texture = CalculateTexture(Index, TexCoord2); break;
                 }
             }
             return Texture;
+        }
+
+        private string CalculateTexture(int Index, string TexCoord)
+        {
+            switch (Params.TextureCoords[Index].MappingType)
+            {
+                case H3DTextureMappingType.CameraCubeEnvMap:
+                    return $"texture(TextureCube, {TexCoord}.xyz)";
+                case H3DTextureMappingType.ProjectionMap:
+                    return $"textureProj(Textures[{Index}], {TexCoord}.xyz)";
+                default:
+                    return $"texture(Textures[{Index}], {TexCoord}.xy)";
+            }
         }
 
         private void GenCombinerColor(PICATexEnvStage Stage, int id, string[] ColorArgs)
