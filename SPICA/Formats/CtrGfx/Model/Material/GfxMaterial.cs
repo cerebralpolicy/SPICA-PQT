@@ -108,6 +108,9 @@ namespace SPICA.Formats.CtrGfx.Model.Material
         {
             this.Name = material.Name;
             this.ShaderParameters = material.BcresShaderParams;
+            this.MetaData = new GfxDict<GfxMetaData>();
+            foreach (var usd in material.BcresUserData)
+                this.MetaData.Add(usd);
             this.Flags = (GfxMaterialFlags)material.MaterialParams.Flags;
             this.FragmentShader.Lighting.TranslucencyKind = (GfxTranslucencyKind)material.MaterialParams.TranslucencyKind;
             this.TexCoordConfig = (GfxTexCoordConfig)material.MaterialParams.TexCoordConfig;
@@ -368,6 +371,9 @@ namespace SPICA.Formats.CtrGfx.Model.Material
         {
             H3DMaterial Mat = new H3DMaterial() { Name = this.Name };
             Mat.BcresShaderParams = this.ShaderParameters;
+            Mat.BcresUserData = new GfxDict<GfxMetaData>();
+            foreach (var usd in this.MetaData)
+                Mat.BcresUserData.Add(usd);
 
             Mat.MaterialParams.ModelReference = $"{Mat.Name}@{modelName}";
             Mat.MaterialParams.ShaderReference = "0@DefaultShader";

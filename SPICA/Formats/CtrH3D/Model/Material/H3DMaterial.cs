@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SPICA.Formats.Common;
+using SPICA.Formats.CtrGfx;
 using SPICA.Formats.CtrGfx.Model.Material;
 using SPICA.Formats.CtrH3D.Texture;
 using SPICA.Math3D;
@@ -26,7 +27,9 @@ namespace SPICA.Formats.CtrH3D.Model.Material
         [Ignore]
         public GfxFragOpDepthFlags BcresDepthFlags = GfxFragOpDepthFlags.IsTestEnabled | GfxFragOpDepthFlags.IsMaskEnabled;
 
-        
+        [Ignore]
+        public GfxDict<GfxMetaData> BcresUserData = new GfxDict<GfxMetaData>();
+
         [Ignore]
         [JsonIgnore]
         public EventHandler UpdateShaders;

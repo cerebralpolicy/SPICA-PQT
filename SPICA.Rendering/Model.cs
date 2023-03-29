@@ -602,9 +602,13 @@ namespace SPICA.Rendering
 
                 GL.UseProgram(Shader.Handle);
 
+                var normalMatrix = Matrix4.Identity * Renderer.Camera.ViewMatrix;
+                normalMatrix.Invert();
+                normalMatrix.Transpose();
+
                 Shader.SetVtx4x4Array(DefaultShaderIds.ProjMtx, Renderer.Camera.ProjectionMatrix);
                 Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx, Transform * Renderer.Camera.ViewMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, Transform.ClearScale());
+                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix * Transform.ClearScale());
                 Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, Matrix4.Identity);
 
                 GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 0);
@@ -612,7 +616,7 @@ namespace SPICA.Rendering
 
                 H3DMaterialParams MP = BaseModel.Materials[MaterialIndex].MaterialParams;
 
-
+                //A hack with mario party due to hemi lighting bugged output to vertex color
                 if (MP.ShaderReference.Contains("CharaCustumShader"))
                     GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 1);
 
@@ -633,17 +637,6 @@ namespace SPICA.Rendering
                 MS.Transforms[1] = MP.TextureCoords[1].GetTransform().ToMatrix4();
                 MS.Transforms[2] = MP.TextureCoords[2].GetTransform().ToMatrix4();
                 
-                /*   var cameraMatrix = ( Renderer.Camera.ViewMatrix);
-                   cameraMatrix.Invert();
-                   cameraMatrix.Transpose();
-
-                   if (MP.TextureCoords[0].MappingType == H3DTextureMappingType.CameraSphereEnvMap)
-                       MS.Transforms[0] = cameraMatrix; 
-                   if (MP.TextureCoords[1].MappingType == H3DTextureMappingType.CameraSphereEnvMap)
-                       MS.Transforms[1] = cameraMatrix;
-                   if (MP.TextureCoords[2].MappingType == H3DTextureMappingType.CameraSphereEnvMap)
-                       MS.Transforms[2] = cameraMatrix;*/
-
                 Vector4 MatAmbient = new Vector4(
                     MS.Ambient.R,
                     MS.Ambient.G,
@@ -662,17 +655,25 @@ namespace SPICA.Rendering
                        MP.SelectionColor.Z,
                        MP.SelectionColor.W);
 
-                Shader.SetVtxVector4(DefaultShaderIds.MatAmbi, MatAmbient);
-                Shader.SetVtxVector4(DefaultShaderIds.MatDiff, MatDiffuse);
-                Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0, MS.Transforms[0]);
-                Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx1, MS.Transforms[1]);
-                Shader.SetVtx2x4Array(DefaultShaderIds.TexMtx2, MS.Transforms[2]);
 
                 Shader.SetVtxVector4(DefaultShaderIds.TexTran, new Vector4(
                     MS.Transforms[0].Row3.X,
                     MS.Transforms[0].Row3.Y,
                     MS.Transforms[1].Row3.X,
                     MS.Transforms[1].Row3.Y));
+
+                for (int i = 0; i < 3; i++)
+                {
+                    //Apply certain matrices based on type. Note, env sphere camera uses normal matrix
+                    if (MP.TextureCoords[i].MappingType == H3DTextureMappingType.ProjectionMap)
+                        MS.Transforms[i] = Renderer.Camera.ViewMatrix * MS.Transforms[i];
+                }
+
+                Shader.SetVtxVector4(DefaultShaderIds.MatAmbi, MatAmbient);
+                Shader.SetVtxVector4(DefaultShaderIds.MatDiff, MatDiffuse);
+                Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0, MS.Transforms[0]);
+                Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx1, MS.Transforms[1]);
+                Shader.SetVtx2x4Array(DefaultShaderIds.TexMtx2, MS.Transforms[2]);
 
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.EmissionUniform),  MS.Emission);
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AmbientUniform),   MS.Ambient);
