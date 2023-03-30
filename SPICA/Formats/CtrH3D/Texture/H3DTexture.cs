@@ -56,7 +56,12 @@ namespace SPICA.Formats.CtrH3D.Texture
         [Ignore] public int Width;
         [Ignore] public int Height;
 
-        public H3DTexture() { }
+        public H3DTexture() {
+            this.Width = 16;
+            this.Height = 16;
+            this.Format = PICATextureFormat.RGBA8;
+            RawBuffer = new byte[Width * Height * 4];
+        }
 
         public H3DTexture(string FileName, PICATextureFormat Format = 0, int mipCount = 1)
         {

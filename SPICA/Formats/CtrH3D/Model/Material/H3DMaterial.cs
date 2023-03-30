@@ -22,6 +22,18 @@ namespace SPICA.Formats.CtrH3D.Model.Material
         public H3DMaterialParams MaterialParams;
 
         [Ignore]
+        public PokemonSettings PokemonUserBooleans = new PokemonSettings();
+
+        //Settings specifically configured by user boolean options for vertex data
+        public class PokemonSettings
+        {
+            public bool IsLightEnabled;
+            public bool IsRimEnabled;
+            public bool IsPhongEnabled;
+            public bool IsInverseLightEnabled;
+        }
+
+        [Ignore]
         public List<GfxShaderParam> BcresShaderParams = new List<GfxShaderParam>();
 
         [Ignore]
