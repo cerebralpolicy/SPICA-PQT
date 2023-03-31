@@ -73,6 +73,7 @@ namespace SPICA.Rendering
                         PixelType.UnsignedByte,
                         Texture.ToMipRGBA(i));
                 }
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             }
         }
 
