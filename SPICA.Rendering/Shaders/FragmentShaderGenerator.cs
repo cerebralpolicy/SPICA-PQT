@@ -254,7 +254,7 @@ namespace SPICA.Rendering.Shaders
             SB.AppendLine($"\telse if ({DebugModeUniform} == 6)"); //Show uv pattern
             SB.AppendLine($"\t    Output.rgb = texture(UVTestPattern, {ShaderOutputRegName.TexCoord0}.xy).rgb;");
 
-            SB.AppendLine($"\telse if ({DebugModeUniform} == 7)"); //Show weights
+           // SB.AppendLine($"\telse if ({DebugModeUniform} == 7)"); //Show weights
            // SB.AppendLine($"\t    Output.rgb = WeightPreview.rgb;"); //todo WeightPreview requires switching to forced default vertex shader
 
             SB.AppendLine($"\telse if ({DebugModeUniform} == 8)"); //Show tangent
