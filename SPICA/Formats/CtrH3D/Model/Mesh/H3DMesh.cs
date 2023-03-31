@@ -196,6 +196,16 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, IsTex2, 14);
 
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, Quat, 15);
+
+                    //Mesh uses material
+                    if (Params.ShaderReference.Contains("PokePack"))
+                    {
+                        //4 - 6 bits are used for custom vertex shader boolean settings
+                        SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, Material.PokemonUserBooleans.IsPhongEnabled, 3);
+                        SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, Material.PokemonUserBooleans.IsRimEnabled, 4);
+                        SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, Material.PokemonUserBooleans.IsInverseLightEnabled, 5);
+                        SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, Material.PokemonUserBooleans.IsLightEnabled, 6);
+                    }
                 }
                 else
                 {
