@@ -187,9 +187,6 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, IsSmoSk, 1);
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, IsRgdSk, 2);
 
-                    SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, IsHemiL, 5);
-                    SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, isHemiO, 6);
-
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, VertA, 7);
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, BoneW, 8);
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, UVMap0, 9);
