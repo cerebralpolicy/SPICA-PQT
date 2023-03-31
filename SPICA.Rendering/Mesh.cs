@@ -272,7 +272,7 @@ namespace SPICA.Rendering
                     }
                     int BoolsLocation = GL.GetUniformLocation(Shader.Handle, ShaderGenerator.BoolsName);
 
-                    GL.Uniform1(BoolsLocation, 0);
+                    GL.Uniform1(BoolsLocation, mesh.BoolUniforms);
 
                     GL.DrawElements(PrimitiveType.Triangles, SM.Indices.Length, DrawElementsType.UnsignedShort, SM.Indices);
                 }
