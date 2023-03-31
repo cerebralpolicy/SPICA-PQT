@@ -1,23 +1,22 @@
 ﻿using SPICA.Serialization;
 using SPICA.Serialization.Attributes;
+using SPICA.Serialization.Serializer;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace SPICA.Formats.CtrH3D.Model.Mesh
 {
     public struct H3DSubMeshCulling 
     {
         //TODO
-        public int Unk1;
-        public int Unk2;
-        public int Unk3;
-        public int Unk4;
-
-         public List<SubMeshCullingFace> SubMeshes;
-
-        public int Unk5;
+        public List<CullingNodeData> CullingNodes;
+        public List<BoundingData> Boundings;
+        public List<SubMeshCullingFace> SubMeshes;
+        public ushort BoolUniforms;
+        public short BoneIndex;
 
         [Ignore] public ushort MaxIndex
         {
@@ -31,6 +30,23 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
                 return face;
             }
         }
+    }
+
+    [Inline]
+    public class CullingNodeData
+    {
+        public byte Left;
+        public byte Right;
+        public byte Next;
+        public byte SubMeshIndex;
+        public uint SubMeshCount;
+    }
+
+    [Inline]
+    public class BoundingData
+    {
+        public Vector3 Center;
+        public Vector3 Extent;
     }
 
     [Inline]
@@ -58,7 +74,17 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
 
         bool ICustomSerialization.Serialize(BinarySerializer Serializer)
         {
-            throw new Exception("Sub mesh culling does not support saving yet!");
+            BufferCount = (uint)Indices.Length;
+
+            long Position = Serializer.BaseStream.Position;
+
+            Serializer.Sections[(uint)H3DSectionId.RawData].Values.Add(new RefValue()
+            {
+                Parent = this,
+                Value = Indices,
+                Position = Position,
+                Padding = 0x10,
+            });
 
             return false;
         }
