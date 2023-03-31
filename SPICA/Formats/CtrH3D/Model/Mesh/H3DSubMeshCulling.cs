@@ -78,6 +78,9 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
 
             long Position = Serializer.BaseStream.Position;
 
+            H3DSection Section = H3DSection.RawDataIndex16;
+            H3DRelocator.AddCmdReloc(Serializer, Section, Position);
+
             Serializer.Sections[(uint)H3DSectionId.RawData].Values.Add(new RefValue()
             {
                 Parent = this,
