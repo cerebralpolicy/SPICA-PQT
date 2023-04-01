@@ -409,7 +409,6 @@ namespace SPICA.Formats.CtrH3D.Model.Material
             while (Reader.HasCommand)
             {
                 PICACommand Cmd = Reader.GetCommand();
-
                 uint Param = Cmd.Parameters[0];
 
                 int Stage = ((int)Cmd.Register >> 3) & 7;
@@ -495,6 +494,8 @@ namespace SPICA.Formats.CtrH3D.Model.Material
                         StencilBufferWrite = (Param & 1) != 0;
                         DepthBufferWrite   = (Param & 2) != 0;
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -561,6 +562,12 @@ namespace SPICA.Formats.CtrH3D.Model.Material
 
             Writer.SetCommand(PICARegister.GPUREG_BLEND_FUNC, BlendFunction.ToUInt32());
 
+            if (LogicalOperation != PICALogicalOp.Clear)
+            {
+                Writer.SetCommand(PICARegister.GPUREG_LOGIC_OP, (uint)LogicalOperation);
+                Writer.SetCommand(PICARegister.GPUREG_BLEND_COLOR, BlendColor.ToUInt32() | 0xff000000u);
+            }
+
             Writer.SetCommand(PICARegister.GPUREG_FRAGOP_ALPHA_TEST, AlphaTest.ToUInt32(), 3);
 
             Writer.SetCommand(PICARegister.GPUREG_STENCIL_TEST, StencilTest.ToUInt32());
@@ -608,13 +615,13 @@ namespace SPICA.Formats.CtrH3D.Model.Material
                 TexMtx[2].M41, TexMtx[2].M31, TexMtx[2].M21, TexMtx[2].M11,
                 TexMtx[2].M42, TexMtx[2].M32, TexMtx[2].M22, TexMtx[2].M12);
 
-            Writer.SetCommand(PICARegister.GPUREG_VSH_FLOATUNIFORM_INDEX, true, 0x80000013u,
+            Writer.SetCommand(PICARegister.GPUREG_VSH_FLOATUNIFORM_INDEX, true, 0x80000013u, //8
                 IOUtils.ToUInt32(TextureCoords[1].Translation.Y),
-                IOUtils.ToUInt32(TextureCoords[1].Translation.X),
-                IOUtils.ToUInt32(TextureCoords[0].Translation.Y),
-                IOUtils.ToUInt32(TextureCoords[0].Translation.X));      
+                IOUtils.ToUInt32(TextureCoords[1].Translation.X), 
+                IOUtils.ToUInt32(TextureCoords[0].Translation.Y), 
+                IOUtils.ToUInt32(TextureCoords[0].Translation.X)); 
 
-            Writer.SetCommand(PICARegister.GPUREG_VSH_FLOATUNIFORM_INDEX, true, 0x8000000au,
+            Writer.SetCommand(PICARegister.GPUREG_VSH_FLOATUNIFORM_INDEX, true, 0x8000000au, //10
                 IOUtils.ToUInt32(TextureSources[3]),
                 IOUtils.ToUInt32(TextureSources[2]),
                 IOUtils.ToUInt32(TextureSources[1]),
@@ -632,12 +639,19 @@ namespace SPICA.Formats.CtrH3D.Model.Material
                 IOUtils.ToUInt32(DiffuseColor.G / 255f),
                 IOUtils.ToUInt32(DiffuseColor.R / 255f));
 
-            Writer.SetCommand(PICARegister.GPUREG_VSH_FLOATUNIFORM_INDEX, true, 0x80000055u,
-                IOUtils.ToUInt32(1),
-                IOUtils.ToUInt32(8),
-                IOUtils.ToUInt32(1),
-                IOUtils.ToUInt32(8));
-            
+            foreach (var vertexUniform in VtxShaderUniforms)
+            {
+                if (vertexUniform.Key <= 0x15)
+                    continue;
+
+                Writer.SetCommand(PICARegister.GPUREG_VSH_FLOATUNIFORM_INDEX, true, 0x80000000 + vertexUniform.Key,
+                    IOUtils.ToUInt32(vertexUniform.Value.W),
+                    IOUtils.ToUInt32(vertexUniform.Value.Z),
+                    IOUtils.ToUInt32(vertexUniform.Value.Y),
+                    IOUtils.ToUInt32(vertexUniform.Value.X));
+            }
+
+
             Writer.WriteEnd();
 
             FragmentShaderCommands = Writer.GetBuffer();
