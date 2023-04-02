@@ -1,4 +1,5 @@
-﻿using SPICA.Formats.Common;
+﻿using Newtonsoft.Json.Linq;
+using SPICA.Formats.Common;
 using SPICA.Formats.CtrH3D.LUT;
 using SPICA.Math3D;
 using SPICA.PICA;
@@ -377,6 +378,17 @@ namespace SPICA.Formats.CtrH3D.Model.Material
             if (Stage >= 0 && Stage < 6)
             {
                 return (ConstantColors >> Stage * 4) & 0xf;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(Stage));
+        }
+
+        public void SetConstantIndex(int Stage, int index)
+        {
+            if (Stage >= 0 && Stage < 6)
+            {
+                ConstantColors = BitUtils.SetBits(ConstantColors, index, Stage * 4, 4);
+                return;
             }
 
             throw new ArgumentOutOfRangeException(nameof(Stage));

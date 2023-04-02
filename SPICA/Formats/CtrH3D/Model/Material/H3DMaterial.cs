@@ -345,21 +345,18 @@ namespace SPICA.Formats.CtrH3D.Model.Material
 
 
             for (int i = 0; i < MaterialParams.TexEnvStages.Length; i++)
-            {
-                switch (MaterialParams.GetConstantIndex(i))
-                {
-                    case 0: MaterialParams.TexEnvStages[i].Constant = CtrGfx.Model.Material.GfxTexEnvConstant.Constant0; break;
-                    case 1: MaterialParams.TexEnvStages[i].Constant = CtrGfx.Model.Material.GfxTexEnvConstant.Constant1; break;
-                    case 2: MaterialParams.TexEnvStages[i].Constant = CtrGfx.Model.Material.GfxTexEnvConstant.Constant2; break;
-                    case 3: MaterialParams.TexEnvStages[i].Constant = CtrGfx.Model.Material.GfxTexEnvConstant.Constant3; break;
-                    case 4: MaterialParams.TexEnvStages[i].Constant = CtrGfx.Model.Material.GfxTexEnvConstant.Constant4; break;
-                    case 5: MaterialParams.TexEnvStages[i].Constant = CtrGfx.Model.Material.GfxTexEnvConstant.Constant5; break;
-                }
-            }
+                MaterialParams.TexEnvStages[i].Constant = (GfxTexEnvConstant)MaterialParams.GetConstantIndex(i);
         }
 
         bool ICustomSerialization.Serialize(BinarySerializer Serializer)
         {
+            for (int i = 0; i < MaterialParams.TexEnvStages.Length; i++)
+            {
+                int id = (int)MaterialParams.TexEnvStages[i].Constant;
+                if (id < 6)
+                    MaterialParams.SetConstantIndex(i, id);
+            }
+
             //The original tool seems to add those (usually unused) names with the silhouette suffix
             Serializer.Sections[(uint)H3DSectionId.Strings].Values.Add(new RefValue()
             {
