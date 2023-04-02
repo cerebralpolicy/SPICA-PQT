@@ -130,23 +130,16 @@ namespace SPICA.Formats.CtrH3D.Texture
             }
         }
 
-        public System.Drawing.Bitmap ToBitmap(int Face = 0)
+        public Image<Rgba32> ToBitmap(int Face = 0)
         {
-            try
-            {
-                return TextureConverter.DecodeBitmap(BufferFromFace(Face), Width, Height, Format);
-            }
-            catch
-            {
-                return new System.Drawing.Bitmap(Width, Height);
-            }
+            return Image.LoadPixelData<Rgba32>(ToRGBA(Face), Width, Height);
         }
 
-        public System.Drawing.Bitmap ToMipBitmap(int level, int Face = 0)
+        public Image<Rgba32> ToMipBitmap(int level, int Face = 0)
         {
-            return TextureConverter.DecodeBitmap(GetMipmap(BufferFromFace(Face), level),
+            return Image.LoadPixelData<Rgba32>(ToMipRGBA(level, Face),
                 Math.Max(1, this.Width >> level),
-                Math.Max(1, this.Height >> level), Format);
+                Math.Max(1, this.Height >> level));
         }
 
         public byte[] ToMipRGBA(int level, int Face = 0)
