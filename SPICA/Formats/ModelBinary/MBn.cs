@@ -1,4 +1,5 @@
-﻿using SPICA.Formats.CtrH3D;
+﻿using SPICA.Formats.Common;
+using SPICA.Formats.CtrH3D;
 using SPICA.Formats.CtrH3D.Model;
 using SPICA.Formats.CtrH3D.Model.Mesh;
 using SPICA.PICA.Commands;
@@ -186,6 +187,7 @@ namespace SPICA.Formats.ModelBinary
                         IndicesDesc[IndicesIndex++].WriteBuffer(Writer, true);
                 }
             }
+            Writer.Align(16, 0xFF);
         }
 
         public void FromH3D(H3DModel Model)

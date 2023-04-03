@@ -616,10 +616,6 @@ namespace SPICA.Rendering
 
                 H3DMaterialParams MP = BaseModel.Materials[MaterialIndex].MaterialParams;
 
-                //A hack with mario party due to hemi lighting bugged output to vertex color
-                if (MP.ShaderReference.Contains("CharaCustumShader"))
-                    GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 1);
-
                 MaterialState MS = MaterialStates[Mesh.BaseMesh.MaterialIndex];
                 MS.Ambient = MP.AmbientColor.ToColor4();
                 MS.Diffuse = MP.DiffuseColor.ToColor4();
