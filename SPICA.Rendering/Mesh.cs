@@ -184,7 +184,12 @@ namespace SPICA.Rendering
 
             GL.CullFace(Params.FaceCulling.ToCullFaceMode());
 
-            GL.PolygonOffset(0, Params.PolygonOffsetUnit);
+            GL.Disable(EnableCap.PolygonOffsetFill);
+            if (Params.IsPolygonOffsetEnabled)
+            {
+                GL.Enable(EnableCap.PolygonOffsetFill);
+                GL.PolygonOffset(0, Params.PolygonOffsetUnit);
+            }
 
             SetState(EnableCap.Blend,       Params.ColorOperation.BlendMode == PICABlendMode.Blend);
             SetState(EnableCap.StencilTest, Params.StencilTest.Enabled);
