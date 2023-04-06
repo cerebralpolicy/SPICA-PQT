@@ -209,13 +209,9 @@ namespace SPICA.Rendering
                 Params.LUTReflecBTableName   ?? Params.LUTReflecRTableName, 
                 Params.LUTReflecBSamplerName ?? Params.LUTReflecRSamplerName);
 
-            Texture0Name = Material.Texture0Name;
-            Texture1Name = Material.Texture1Name;
-            Texture2Name = Material.Texture2Name;
-
-            /*  Texture0Name = MS.Texture0Name;
+              Texture0Name = MS.Texture0Name;
               Texture1Name = MS.Texture1Name;
-              Texture2Name = MS.Texture2Name;*/
+              Texture2Name = MS.Texture2Name;
 
             Parent.Renderer.BindUVTestPattern(20);
             Parent.Renderer.BindWeightRamp1(21);
