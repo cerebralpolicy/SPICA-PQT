@@ -43,6 +43,11 @@ namespace SPICA.Math3D
                 m41, m42, m43, 1f);
         }
 
+        public Matrix3x4()
+        {
+            m = Matrix4x4.Identity;
+        }
+
         public Matrix4x4 ToMatrix4x4()
         {
             return m;
