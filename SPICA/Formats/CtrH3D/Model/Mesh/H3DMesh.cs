@@ -210,7 +210,7 @@ namespace SPICA.Formats.CtrH3D.Model.Mesh
                 else
                 {
                     //Set first bit for smash 3ds shaders
-                    if (Params.ShaderReference.Contains("CharaCustumShader"))
+                    if (Params.ShaderReference.Contains("CharaCustumShader") || isSmashBros)
                         SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, true, 0);
 
                     SM.BoolUniforms = (ushort)BitUtils.SetBit(SM.BoolUniforms, IsSmoSk, 1);
