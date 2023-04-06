@@ -48,6 +48,9 @@ namespace SPICA.Formats.CtrGfx.Model
             this.Header.Revision = 150994944;
 
             Flags = GfxModelFlags.IsVisible;
+
+            this.LocalTransform = Math3D.Matrix3x4.Identity;
+            this.WorldTransform = Math3D.Matrix3x4.Identity;
         }
 
         public H3DModel ToH3D()
