@@ -25,8 +25,8 @@ namespace SPICA.Rendering
         public static int DebugLUTShadingMode = 0;
 
         //Global uniforms for when no hemi lighting source is present
-        public static Vector3 GlobalHsLGCol = new Vector3(0.56471f, 0.34118f, 0.03529f);
-        public static Vector3 GlobalHsLSCol = new Vector3(0.46275f, 0.76078f, 0.87059f);
+        public static Vector3 GlobalHsLGCol = new Vector3(0.4f, 0.4f, 0.4f);
+        public static Vector3 GlobalHsLSCol = new Vector3(0.9f, 0.9f, 0.9f);
 
         public static Dictionary<string, Texture> TextureCache = new Dictionary<string, Texture>();
         public static Dictionary<string, LUT> LUTCache = new Dictionary<string, LUT>();
