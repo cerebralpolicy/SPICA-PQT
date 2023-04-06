@@ -39,28 +39,7 @@ namespace SPICA.Rendering.Animation
             for (int i = 0; i < Materials.Count; i++)
             {
                 MaterialState State = States[i];
-
-                H3DMaterialParams Params = Materials[i].MaterialParams;
-
-                State.Transforms[0] = Params.TextureCoords[0].GetTransform().ToMatrix4();
-                State.Transforms[1] = Params.TextureCoords[1].GetTransform().ToMatrix4();
-                State.Transforms[2] = Params.TextureCoords[2].GetTransform().ToMatrix4();
-
-                State.Emission  = Params.EmissionColor .ToColor4();
-                State.Ambient   = Params.AmbientColor  .ToColor4();
-                State.Diffuse   = Params.DiffuseColor  .ToColor4();
-                State.Specular0 = Params.Specular0Color.ToColor4();
-                State.Specular1 = Params.Specular1Color.ToColor4();
-                State.Constant0 = Params.Constant0Color.ToColor4();
-                State.Constant1 = Params.Constant1Color.ToColor4();
-                State.Constant2 = Params.Constant2Color.ToColor4();
-                State.Constant3 = Params.Constant3Color.ToColor4();
-                State.Constant4 = Params.Constant4Color.ToColor4();
-                State.Constant5 = Params.Constant5Color.ToColor4();
-
-                State.Texture0Name = Materials[i].Texture0Name;
-                State.Texture1Name = Materials[i].Texture1Name;
-                State.Texture2Name = Materials[i].Texture2Name;
+                State.Reset(Materials[i]);
             }
         }
 

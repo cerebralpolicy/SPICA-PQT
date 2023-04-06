@@ -617,22 +617,11 @@ namespace SPICA.Rendering
                 H3DMaterialParams MP = BaseModel.Materials[MaterialIndex].MaterialParams;
 
                 MaterialState MS = MaterialStates[Mesh.BaseMesh.MaterialIndex];
-                MS.Ambient = MP.AmbientColor.ToColor4();
-                MS.Diffuse = MP.DiffuseColor.ToColor4();
-                MS.Emission = MP.EmissionColor.ToColor4();
-                MS.Specular0 = MP.Specular0Color.ToColor4();
-                MS.Specular1 = MP.Specular1Color.ToColor4();
-                MS.Constant0 = MP.Constant0Color.ToColor4();
-                MS.Constant1 = MP.Constant1Color.ToColor4();
-                MS.Constant2 = MP.Constant2Color.ToColor4();
-                MS.Constant3 = MP.Constant3Color.ToColor4();
-                MS.Constant4 = MP.Constant4Color.ToColor4();
-                MS.Constant5 = MP.Constant5Color.ToColor4();
 
-                MS.Transforms[0] = MP.TextureCoords[0].GetTransform().ToMatrix4();
-                MS.Transforms[1] = MP.TextureCoords[1].GetTransform().ToMatrix4();
-                MS.Transforms[2] = MP.TextureCoords[2].GetTransform().ToMatrix4();
-                
+                //For updating the UI, apply the current material data to the state unless it is animating
+                if (!MS.IsAnimated)
+                    MS.Reset(BaseModel.Materials[MaterialIndex]);
+
                 Vector4 MatAmbient = new Vector4(
                     MS.Ambient.R,
                     MS.Ambient.G,
