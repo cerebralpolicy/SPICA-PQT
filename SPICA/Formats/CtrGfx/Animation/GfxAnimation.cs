@@ -451,6 +451,7 @@ namespace SPICA.Formats.CtrGfx.Animation
                 }
 
                 GfxAnimationElement gfxElement = new GfxAnimationElement();
+                gfxElement.Flags = 8;
                 this.Elements.Add(gfxElement);
 
                 switch (elem.TargetType)
@@ -485,7 +486,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Float:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Float;
-                            gfxElement.Flags = 8;
 
                             var animF = new GfxAnimFloat();
                             CopyKeyFrames(((H3DAnimFloat)elem.Content).Value, animF.Value);
@@ -495,7 +495,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Vector2D:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Vector2D;
-                            gfxElement.Flags = 8;
 
                             var animVec = new GfxAnimVector2D();
                             CopyKeyFrames(((H3DAnimVector2D)elem.Content).X, animVec.X);
@@ -506,7 +505,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Vector3D:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Vector3D;
-                            gfxElement.Flags = 8;
 
                             var animVec = new GfxAnimVector3D();
                             CopyKeyFrames(((H3DAnimVector3D)elem.Content).X, animVec.X);
@@ -518,7 +516,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.RGBA:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.RGBA;
-                            gfxElement.Flags = 8;
 
                             var animVec = new GfxAnimRGBA();
                             CopyKeyFrames(((H3DAnimRGBA)elem.Content).R, animVec.R);
@@ -531,7 +528,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Boolean:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Boolean;
-                            gfxElement.Flags = 8;
 
                             var animB = new GfxAnimBoolean();
                             CopyKeyFrames(((H3DAnimBoolean)elem.Content), animB);
@@ -541,7 +537,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Texture:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Texture;
-                            gfxElement.Flags = 8;
 
                             var textures = ((H3DMaterialAnim)animation).TextureNames.ToList();
 

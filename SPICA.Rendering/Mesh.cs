@@ -389,6 +389,12 @@ namespace SPICA.Rendering
 
             GL.TexParameter(Target, TextureParameterName.TextureMinFilter, MinFilter);
             GL.TexParameter(Target, TextureParameterName.TextureMagFilter, MagFilter);
+
+            var borderColor = Material.TextureMappers[Unit].BorderColor.ToVector4();
+            GL.TexParameter(Target, TextureParameterName.TextureBorderColor,  new float[4]
+            {
+                borderColor.X, borderColor.Y, borderColor.Z, borderColor.W
+            });
         }
 
         private static All GetWrap(PICATextureWrap Wrap)

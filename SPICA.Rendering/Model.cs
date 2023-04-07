@@ -671,6 +671,7 @@ namespace SPICA.Rendering
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant3Uniform), MS.Constant3);
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant4Uniform), MS.Constant4);
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant5Uniform), MS.Constant5);
+                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.CombBufferUniform), MP.TexEnvBufferColor.ToColor4());
 
                 GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AlphaRefUniform), MP.AlphaTest.Reference / 255.0f);
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), MatSelect);

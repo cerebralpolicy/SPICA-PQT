@@ -26,6 +26,8 @@ namespace SPICA.Rendering.Shaders
         public const string SelectionUniform = "u_SelectionColor";
         public const string DebugModeUniform = "u_DebugMode";
         public const string DebugLUTModeUniform = "u_DebugLUTMode";
+        public const string CombBufferUniform = "u_CombBufferColor";
+        
 
         private StringBuilder SB;
 
@@ -62,6 +64,7 @@ namespace SPICA.Rendering.Shaders
             SB.AppendLine($"uniform vec4 {Constant3Uniform};");
             SB.AppendLine($"uniform vec4 {Constant4Uniform};");
             SB.AppendLine($"uniform vec4 {Constant5Uniform};");
+            SB.AppendLine($"uniform vec4 {CombBufferUniform};");
             SB.AppendLine($"uniform float {AlphaRefUniform};");
             SB.AppendLine($"uniform vec4 {SelectionUniform};");
             SB.AppendLine($"uniform int {DebugModeUniform};");
@@ -84,7 +87,7 @@ namespace SPICA.Rendering.Shaders
             SB.AppendLine("\tvec4 DebugDist1;");
             SB.AppendLine("\tvec4 DebugFresnel;");
             SB.AppendLine("\tvec4 DebugSpec;");
-            SB.AppendLine($"\tvec4 CombBuffer = {GetVec4(Params.TexEnvBufferColor)};");
+            SB.AppendLine($"\tvec4 CombBuffer = {CombBufferUniform};");
             SB.AppendLine($"\tvec4 FragPriColor = vec4(0, 0, 0, 1);");
             SB.AppendLine("\tvec4 FragSecColor = vec4(0, 0, 0, 1);");
 
