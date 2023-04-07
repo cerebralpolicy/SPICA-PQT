@@ -576,7 +576,7 @@ namespace SPICA.Rendering
             if (!BaseModel.IsVisible)
                 return;
 
-            Transform = this.BaseModel.WorldTransform.ToMatrix4();
+            var transform = Transform * this.BaseModel.WorldTransform.ToMatrix4();
 
             int index = 0;
             foreach (Mesh Mesh in Meshes)
@@ -607,8 +607,8 @@ namespace SPICA.Rendering
                 normalMatrix.Transpose();
 
                 Shader.SetVtx4x4Array(DefaultShaderIds.ProjMtx, Renderer.Camera.ProjectionMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx, Transform * Renderer.Camera.ViewMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix * Transform.ClearScale());
+                Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx, transform * Renderer.Camera.ViewMatrix);
+                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix * transform.ClearScale());
                 Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, Matrix4.Identity);
 
                 GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 0);
