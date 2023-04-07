@@ -17,10 +17,6 @@ namespace SPICA.Formats.CtrGfx.Animation
         [Ignore] public readonly List<Quaternion> Rotations;
         [Ignore] public readonly List<Vector3> Translations;
 
-        [Ignore] public readonly List<uint> SFlags;
-        [Ignore] public readonly List<uint> RFlags;
-        [Ignore] public readonly List<uint> TFlags;
-
         public bool HasScale => Scales.Count > 0;
         public bool HasRotation => Rotations.Count > 0;
         public bool HasTranslation => Translations.Count > 0;
@@ -29,14 +25,19 @@ namespace SPICA.Formats.CtrGfx.Animation
 
         [Ignore] private float StartFrame;
 
+        enum TransformFlags
+        {
+            None = 0,
+            Quat_Identity = 0x80,
+            Vec3_Zero = 0x100,
+            Vec3_One = 0x600,
+        }
+
         public GfxAnimQuatTransform()
         {
             Scales = new List<Vector3>();
             Rotations = new List<Quaternion>();
             Translations = new List<Vector3>();
-            SFlags = new List<uint>();
-            RFlags = new List<uint>();
-            TFlags = new List<uint>();
         }
 
         void ICustomSerialization.Deserialize(BinaryDeserializer Deserializer)
@@ -77,15 +78,15 @@ namespace SPICA.Formats.CtrGfx.Animation
                         {
                             case 0:
                                 Scales.Add(Deserializer.Reader.ReadVector3());
-                                SFlags.Add(Deserializer.Reader.ReadUInt32());
+                                Deserializer.Reader.ReadUInt32(); //Flags to check if scale == 1
                                 break;
                             case 1:
                                 Rotations.Add(Deserializer.Reader.ReadQuaternion());
-                                RFlags.Add(Deserializer.Reader.ReadUInt32());
+                                Deserializer.Reader.ReadUInt32(); //Flags to check if rotation == 0
                                 break;
                             case 2:
                                 Translations.Add(Deserializer.Reader.ReadVector3());
-                                TFlags.Add(Deserializer.Reader.ReadUInt32());
+                                Deserializer.Reader.ReadUInt32(); //Flags to check if translation == 0
                                 break;
                         }
                     }
@@ -123,13 +124,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case 2: Elem = Scales; break;
                 }
 
-                switch (ElemIndex)
-                {
-                    case 0: FlagList = RFlags; break;
-                    case 1: FlagList = TFlags; break;
-                    case 2: FlagList = SFlags; break;
-                }
-
                 if (Elem.Count > 0)
                 {
                     Serializer.BaseStream.Seek(DescPosition + ElemIndex * 4, SeekOrigin.Begin);
@@ -149,13 +143,22 @@ namespace SPICA.Formats.CtrGfx.Animation
                         if (Vector is Vector3)
                         {
                             Serializer.Writer.Write((Vector3)Vector);
+                            if ((Vector3)Vector == Vector3.One)
+                                Serializer.Writer.Write((int)TransformFlags.Vec3_One); //Vec3 one
+                            else if ((Vector3)Vector == Vector3.Zero)
+                                Serializer.Writer.Write((int)TransformFlags.Vec3_Zero); //Vec3 zero 
+                            else
+                                Serializer.Writer.Write(0);
                         }
                         else
                         {
                             Serializer.Writer.Write((Quaternion)Vector);
+                            if ((Quaternion)Vector == Quaternion.Identity)
+                                Serializer.Writer.Write((int)TransformFlags.Quat_Identity);
+                            else
+                                Serializer.Writer.Write(0);
                         }
-                        //TODO: Segment Flags
-                        Serializer.Writer.Write((uint)FlagList[idx++]);
+                        
                     }
 
                     if (Elem.Count == 1) //Flag unused?

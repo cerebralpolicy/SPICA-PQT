@@ -1,4 +1,5 @@
 ﻿using SPICA.Formats.Common;
+using SPICA.Formats.CtrGfx.AnimGroup;
 using SPICA.Formats.CtrH3D.Animation;
 
 using System.Collections.Generic;
@@ -442,7 +443,6 @@ namespace SPICA.Formats.CtrGfx.Animation
             this.FramesCount = animation.FramesCount;
             this.Elements.Clear();
 
-
             foreach (var elem in animation.Elements)
             {
                 string MaterialTarget(string target)
@@ -451,6 +451,7 @@ namespace SPICA.Formats.CtrGfx.Animation
                 }
 
                 GfxAnimationElement gfxElement = new GfxAnimationElement();
+                this.Elements.Add(gfxElement);
 
                 switch (elem.TargetType)
                 {
@@ -466,29 +467,103 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DTargetType.MaterialTexCoord0Rot: gfxElement.Name = MaterialTarget("TextureCoordinators[0].Rotate"); break;
                     case H3DTargetType.MaterialTexCoord1Rot: gfxElement.Name = MaterialTarget("TextureCoordinators[1].Rotate"); break;
                     case H3DTargetType.MaterialTexCoord2Rot: gfxElement.Name = MaterialTarget("TextureCoordinators[2].Rotate"); break;
+                    case H3DTargetType.MaterialDiffuse: gfxElement.Name = MaterialTarget("MaterialColor.Diffuse"); break;
+                    case H3DTargetType.MaterialAmbient: gfxElement.Name = MaterialTarget("MaterialColor.Ambient"); break;
+                    case H3DTargetType.MaterialEmission: gfxElement.Name = MaterialTarget("MaterialColor.Emission"); break;
+                    case H3DTargetType.MaterialSpecular0: gfxElement.Name = MaterialTarget("MaterialColor.Specular0"); break;
+                    case H3DTargetType.MaterialSpecular1: gfxElement.Name = MaterialTarget("MaterialColor.Specular1"); break;
+                    case H3DTargetType.MaterialConstant0: gfxElement.Name = MaterialTarget("MaterialColor.Constant0"); break;
+                    case H3DTargetType.MaterialConstant1: gfxElement.Name = MaterialTarget("MaterialColor.Constant1"); break;
+                    case H3DTargetType.MaterialConstant2: gfxElement.Name = MaterialTarget("MaterialColor.Constant2"); break;
+                    case H3DTargetType.MaterialConstant3: gfxElement.Name = MaterialTarget("MaterialColor.Constant3"); break;
+                    case H3DTargetType.MaterialConstant4: gfxElement.Name = MaterialTarget("MaterialColor.Constant4"); break;
+                    case H3DTargetType.MaterialConstant5: gfxElement.Name = MaterialTarget("MaterialColor.Constant5"); break;
                 }
 
                 switch (elem.PrimitiveType)
                 {
+                    case H3DPrimitiveType.Float:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Float;
+                            gfxElement.Flags = 8;
+
+                            var animF = new GfxAnimFloat();
+                            CopyKeyFrames(((H3DAnimFloat)elem.Content).Value, animF.Value);
+                            gfxElement.Content = animF;
+                        }
+                        break;
+                    case H3DPrimitiveType.Vector2D:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Vector2D;
+                            gfxElement.Flags = 8;
+
+                            var animVec = new GfxAnimVector2D();
+                            CopyKeyFrames(((H3DAnimVector2D)elem.Content).X, animVec.X);
+                            CopyKeyFrames(((H3DAnimVector2D)elem.Content).Y, animVec.Y);
+                            gfxElement.Content = animVec;
+                        }
+                        break;
+                    case H3DPrimitiveType.Vector3D:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Vector3D;
+                            gfxElement.Flags = 8;
+
+                            var animVec = new GfxAnimVector3D();
+                            CopyKeyFrames(((H3DAnimVector3D)elem.Content).X, animVec.X);
+                            CopyKeyFrames(((H3DAnimVector3D)elem.Content).Y, animVec.Y);
+                            CopyKeyFrames(((H3DAnimVector3D)elem.Content).Z, animVec.Z);
+                            gfxElement.Content = animVec;
+                        }
+                        break;
+                    case H3DPrimitiveType.RGBA:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.RGBA;
+                            gfxElement.Flags = 8;
+
+                            var animVec = new GfxAnimRGBA();
+                            CopyKeyFrames(((H3DAnimRGBA)elem.Content).R, animVec.R);
+                            CopyKeyFrames(((H3DAnimRGBA)elem.Content).G, animVec.G);
+                            CopyKeyFrames(((H3DAnimRGBA)elem.Content).B, animVec.B);
+                            CopyKeyFrames(((H3DAnimRGBA)elem.Content).A, animVec.A);
+                            gfxElement.Content = animVec;
+                        }
+                        break;
+                    case H3DPrimitiveType.Boolean:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Boolean;
+                            gfxElement.Flags = 8;
+
+                            var animB = new GfxAnimBoolean();
+                            CopyKeyFrames(((H3DAnimBoolean)elem.Content), animB);
+                            gfxElement.Content = animB;
+                        }
+                        break;
                     case H3DPrimitiveType.Texture:
-                        gfxElement.PrimitiveType = GfxPrimitiveType.Texture;
-                        gfxElement.Flags = 8;
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Texture;
+                            gfxElement.Flags = 8;
 
-                        var textures = ((H3DMaterialAnim)animation).TextureNames.ToList();
+                            var textures = ((H3DMaterialAnim)animation).TextureNames.ToList();
 
-                        var animTex = new GfxAnimTexture();
-                        animTex.TextureList = new Model.Material.GfxTextureReference[textures.Count];
-                        for (int i = 0; i < textures.Count; i++)
-                            animTex.TextureList[i] = new Model.Material.GfxTextureReference()
-                            {
-                                Path = textures[i],
-                                Name = "", //only need to set path
-                            };
-                        CopyKeyFrames((H3DFloatKeyFrameGroup)elem.Content, animTex.Texture);
-                        gfxElement.Content = animTex;
+                            var animTex = new GfxAnimTexture();
+                            animTex.TextureList = new Model.Material.GfxTextureReference[textures.Count];
+                            for (int i = 0; i < textures.Count; i++)
+                                animTex.TextureList[i] = new Model.Material.GfxTextureReference()
+                                {
+                                    Path = textures[i],
+                                    Name = "", //only need to set path
+                                };
+                            CopyKeyFrames((H3DFloatKeyFrameGroup)elem.Content, animTex.Texture);
+                            gfxElement.Content = animTex;
+                        }
                         break;
                 }
             }
+        }
+
+        private void CopyKeyFrames(H3DAnimBoolean Source, GfxAnimBoolean Target)
+        {
+
         }
 
         private void CopyKeyFrames(GfxFloatKeyFrameGroup Source, H3DFloatKeyFrameGroup Target)
