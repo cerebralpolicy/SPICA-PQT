@@ -167,9 +167,15 @@ namespace SPICA.Formats.CtrH3D.Model.Material
             Output.MaterialParams.DepthBufferWrite = true;
 
             if (!string.IsNullOrEmpty(TextureName))
+            {
                 Output.MaterialParams.TexEnvStages[0] = PICATexEnvStage.Texture0;
+                Output.MaterialParams.TexEnvStages[0].Combiner.Color = PICATextureCombinerMode.Modulate;
+                Output.MaterialParams.TexEnvStages[0].Source.Color[0] = PICATextureCombinerSource.PrimaryColor;
+                Output.MaterialParams.TexEnvStages[0].Source.Color[1] = PICATextureCombinerSource.Texture0;
+            }
             else
                 Output.MaterialParams.TexEnvStages[0] = PICATexEnvStage.VertexColor;
+
 
             Output.MaterialParams.TexEnvStages[1] = PICATexEnvStage.PassThrough;
             Output.MaterialParams.TexEnvStages[2] = PICATexEnvStage.PassThrough;
