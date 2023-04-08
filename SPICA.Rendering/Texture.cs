@@ -50,13 +50,11 @@ namespace SPICA.Rendering
                 if (Texture.MipmapSize > maxMips)
                     mipCount = 1;
 
-                mipCount = 1;
-
                 //Load mipmaps
                // GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, mipCount - 1);
                 //Force load a filter for mipmaps. Materials will later reconfigure with the right filter to use
-                if (mipCount > 1)
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+               // if (mipCount > 1)
+                //    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
 
                 for (int i = 0; i < mipCount; i++)
                 {

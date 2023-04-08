@@ -390,6 +390,9 @@ namespace SPICA.Rendering
             GL.TexParameter(Target, TextureParameterName.TextureMinFilter, MinFilter);
             GL.TexParameter(Target, TextureParameterName.TextureMagFilter, MagFilter);
 
+            GL.TexParameter(Target, TextureParameterName.TextureLodBias, Material.TextureMappers[Unit].LODBias);
+            GL.TexParameter(Target, TextureParameterName.TextureMinLod, Material.TextureMappers[Unit].MinLOD);
+
             var borderColor = Material.TextureMappers[Unit].BorderColor.ToVector4();
             GL.TexParameter(Target, TextureParameterName.TextureBorderColor,  new float[4]
             {

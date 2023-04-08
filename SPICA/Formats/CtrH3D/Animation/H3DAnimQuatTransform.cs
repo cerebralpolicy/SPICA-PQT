@@ -25,6 +25,10 @@ namespace SPICA.Formats.CtrH3D.Animation
         public bool HasRotation    => Rotations.Count    > 0;
         public bool HasTranslation => Translations.Count > 0;
 
+        [Ignore] public uint ScaleFlags;
+        [Ignore] public uint RotationsFlags;
+        [Ignore] public uint TranslationsFlags;
+
         public H3DAnimQuatTransform()
         {
             Scales       = new List<Vector3>();
@@ -69,6 +73,13 @@ namespace SPICA.Formats.CtrH3D.Animation
                         ElemFlags = Deserializer.Reader.ReadUInt32();
                         Address   = Deserializer.Reader.ReadUInt32();
                         Count     = Deserializer.Reader.ReadUInt32();
+
+                        switch (ElemIndex)
+                        {
+                            case 0: ScaleFlags = ElemFlags; break;
+                            case 1: RotationsFlags = ElemFlags; break;
+                            case 2: TranslationsFlags = ElemFlags; break;
+                        }
                     }
 
                     Deserializer.BaseStream.Seek(Address, SeekOrigin.Begin);
@@ -102,12 +113,20 @@ namespace SPICA.Formats.CtrH3D.Animation
             for (int ElemIndex = 0; ElemIndex < 3; ElemIndex++)
             {
                 IList Elem = null;
+                uint flags = 0;
 
                 switch (ElemIndex)
                 {
                     case 0: Elem = Scales;       break;
                     case 1: Elem = Rotations;    break;
                     case 2: Elem = Translations; break;
+                }
+
+                switch (ElemIndex)
+                {
+                    case 0: flags = ScaleFlags; break;
+                    case 1: flags = RotationsFlags; break;
+                    case 2: flags = TranslationsFlags; break;
                 }
 
                 if (Elem.Count > 0)
@@ -122,7 +141,7 @@ namespace SPICA.Formats.CtrH3D.Animation
                     {
                         Serializer.Writer.Write(0f); //Start Frame
                         Serializer.Writer.Write((float)Elem.Count); //End Frame
-                        Serializer.Writer.Write(0u); //Flags?
+                        Serializer.Writer.Write(flags); //Flags?
                         Serializer.Writer.Write(0u); //KeyFrames Ptr (Place Holder)
                         Serializer.Writer.Write(0u); //KeyFrames Count (Place Holder)
 

@@ -667,6 +667,7 @@ namespace SPICA.Formats.CtrH3D.Model.Material
             Writer.WriteEnd();
 
             FragmentShaderCommands = Writer.GetBuffer();
+            FragmentShaderCommandsCompat = FragmentShaderCommands;
 
             GenerateUniqueId();
 
