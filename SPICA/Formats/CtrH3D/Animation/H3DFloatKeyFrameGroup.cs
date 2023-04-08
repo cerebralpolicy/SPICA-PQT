@@ -126,7 +126,8 @@ namespace SPICA.Formats.CtrH3D.Animation
 
             if (Serializer.FileVersion < 0x20)
             {
-                Serializer.WritePointer((uint)Serializer.BaseStream.Position + 4);
+                Serializer.WritePointer((uint)Serializer.BaseStream.Position + 8);
+                Serializer.Writer.Write(1);
 
                 Serializer.Writer.Write(StartFrame);
                 Serializer.Writer.Write(EndFrame);
