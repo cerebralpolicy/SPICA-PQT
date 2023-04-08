@@ -55,31 +55,37 @@ namespace SPICA.Formats.CtrH3D.Animation
                 ValueOffset = Deserializer.Reader.ReadSingle();
                 FrameScale  = Deserializer.Reader.ReadSingle();
             }
-
-            Deserializer.BaseStream.Seek(Deserializer.Reader.ReadUInt32(), SeekOrigin.Begin);
-
-            for (int Index = 0; Index < Count; Index++)
+            if (Quantization != KeyFrameQuantization.Constant)
             {
-                KeyFrame KF;
+                Deserializer.BaseStream.Seek(Deserializer.Reader.ReadUInt32(), SeekOrigin.Begin);
 
-                switch (Quantization)
+                for (int Index = 0; Index < Count; Index++)
                 {
-                    case KeyFrameQuantization.Hermite128:       KF = Deserializer.Reader.ReadHermite128();       break;
-                    case KeyFrameQuantization.Hermite64:        KF = Deserializer.Reader.ReadHermite64();        break;
-                    case KeyFrameQuantization.Hermite48:        KF = Deserializer.Reader.ReadHermite48();        break;
-                    case KeyFrameQuantization.UnifiedHermite96: KF = Deserializer.Reader.ReadUnifiedHermite96(); break;
-                    case KeyFrameQuantization.UnifiedHermite48: KF = Deserializer.Reader.ReadUnifiedHermite48(); break;
-                    case KeyFrameQuantization.UnifiedHermite32: KF = Deserializer.Reader.ReadUnifiedHermite32(); break;
-                    case KeyFrameQuantization.StepLinear64:     KF = Deserializer.Reader.ReadStepLinear64();     break;
-                    case KeyFrameQuantization.StepLinear32:     KF = Deserializer.Reader.ReadStepLinear32();     break;
+                    KeyFrame KF;
 
-                    default: throw new InvalidOperationException($"Invalid Segment quantization {Quantization}!");
+                    switch (Quantization)
+                    {
+                        case KeyFrameQuantization.Hermite128: KF = Deserializer.Reader.ReadHermite128(); break;
+                        case KeyFrameQuantization.Hermite64: KF = Deserializer.Reader.ReadHermite64(); break;
+                        case KeyFrameQuantization.Hermite48: KF = Deserializer.Reader.ReadHermite48(); break;
+                        case KeyFrameQuantization.UnifiedHermite96: KF = Deserializer.Reader.ReadUnifiedHermite96(); break;
+                        case KeyFrameQuantization.UnifiedHermite48: KF = Deserializer.Reader.ReadUnifiedHermite48(); break;
+                        case KeyFrameQuantization.UnifiedHermite32: KF = Deserializer.Reader.ReadUnifiedHermite32(); break;
+                        case KeyFrameQuantization.StepLinear64: KF = Deserializer.Reader.ReadStepLinear64(); break;
+                        case KeyFrameQuantization.StepLinear32: KF = Deserializer.Reader.ReadStepLinear32(); break;
+
+                        default: throw new InvalidOperationException($"Invalid Segment quantization {Quantization}!");
+                    }
+
+                    KF.Frame = KF.Frame * FrameScale;
+                    KF.Value = KF.Value * ValueScale + ValueOffset;
+
+                    KeyFrames.Add(KF);
                 }
-
-                KF.Frame = KF.Frame * FrameScale;
-                KF.Value = KF.Value * ValueScale + ValueOffset;
-
-                KeyFrames.Add(KF);
+            }
+            else
+            {
+                KeyFrames.Add(new KeyFrame(0, Deserializer.Reader.ReadSingle()));
             }
         }
 
@@ -154,30 +160,36 @@ namespace SPICA.Formats.CtrH3D.Animation
                 Serializer.Writer.Write(FrameScale);
                 Serializer.Writer.Write(InvDuration);
             }
-
-            Serializer.WritePointer((uint)Serializer.BaseStream.Position + 4);
-
-            foreach (KeyFrame Key in KeyFrames)
+            if (Quantization != KeyFrameQuantization.Constant)
             {
-                KeyFrame KF = Key;
+                Serializer.WritePointer((uint)Serializer.BaseStream.Position + 4);
 
-                KF.Frame = (KF.Frame / FrameScale);
-                KF.Value = (KF.Value - ValueOffset) / ValueScale;                   
-
-                switch (Quantization)
+                foreach (KeyFrame Key in KeyFrames)
                 {
-                    case KeyFrameQuantization.Hermite128:       Serializer.Writer.WriteHermite128(KF);       break;
-                    case KeyFrameQuantization.Hermite64:        Serializer.Writer.WriteHermite64(KF);        break;
-                    case KeyFrameQuantization.Hermite48:        Serializer.Writer.WriteHermite48(KF);        break;
-                    case KeyFrameQuantization.UnifiedHermite96: Serializer.Writer.WriteUnifiedHermite96(KF); break;
-                    case KeyFrameQuantization.UnifiedHermite48: Serializer.Writer.WriteUnifiedHermite48(KF); break;
-                    case KeyFrameQuantization.UnifiedHermite32: Serializer.Writer.WriteUnifiedHermite32(KF); break;
-                    case KeyFrameQuantization.StepLinear64:     Serializer.Writer.WriteStepLinear64(KF);     break;
-                    case KeyFrameQuantization.StepLinear32:     Serializer.Writer.WriteStepLinear32(KF);     break;
-                }
-            }
+                    KeyFrame KF = Key;
 
-            while ((Serializer.BaseStream.Position & 3) != 0) Serializer.BaseStream.WriteByte(0);
+                    KF.Frame = (KF.Frame / FrameScale);
+                    KF.Value = (KF.Value - ValueOffset) / ValueScale;
+
+                    switch (Quantization)
+                    {
+                        case KeyFrameQuantization.Hermite128: Serializer.Writer.WriteHermite128(KF); break;
+                        case KeyFrameQuantization.Hermite64: Serializer.Writer.WriteHermite64(KF); break;
+                        case KeyFrameQuantization.Hermite48: Serializer.Writer.WriteHermite48(KF); break;
+                        case KeyFrameQuantization.UnifiedHermite96: Serializer.Writer.WriteUnifiedHermite96(KF); break;
+                        case KeyFrameQuantization.UnifiedHermite48: Serializer.Writer.WriteUnifiedHermite48(KF); break;
+                        case KeyFrameQuantization.UnifiedHermite32: Serializer.Writer.WriteUnifiedHermite32(KF); break;
+                        case KeyFrameQuantization.StepLinear64: Serializer.Writer.WriteStepLinear64(KF); break;
+                        case KeyFrameQuantization.StepLinear32: Serializer.Writer.WriteStepLinear32(KF); break;
+                    }
+                }
+
+                while ((Serializer.BaseStream.Position & 3) != 0) Serializer.BaseStream.WriteByte(0);
+            }
+            else
+            {
+                Serializer.Writer.Write(KeyFrames[0].Value);
+            }
 
             return true;
         }

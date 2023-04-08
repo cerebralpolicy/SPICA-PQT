@@ -9,6 +9,7 @@
         UnifiedHermite48,
         UnifiedHermite32,
         StepLinear64,
-        StepLinear32
+        StepLinear32,
+        Constant,
     }
 }
