@@ -11,6 +11,7 @@ using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
+using SixLabors.ImageSharp.Processing;
 
 namespace SPICA.Formats.CtrH3D.Texture
 {
@@ -132,14 +133,18 @@ namespace SPICA.Formats.CtrH3D.Texture
 
         public Image<Rgba32> ToBitmap(int Face = 0)
         {
-            return Image.LoadPixelData<Rgba32>(ToRGBA(Face), Width, Height);
+            var image = Image.LoadPixelData<Rgba32>(ToRGBA(Face), Width, Height);
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            return image;
         }
 
         public Image<Rgba32> ToMipBitmap(int level, int Face = 0)
         {
-            return Image.LoadPixelData<Rgba32>(ToMipRGBA(level, Face),
+            var image = Image.LoadPixelData<Rgba32>(ToMipRGBA(level, Face),
                 Math.Max(1, this.Width >> level),
                 Math.Max(1, this.Height >> level));
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            return image;
         }
 
         public byte[] ToMipRGBA(int level, int Face = 0)
