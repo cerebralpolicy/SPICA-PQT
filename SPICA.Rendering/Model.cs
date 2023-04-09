@@ -651,14 +651,13 @@ namespace SPICA.Rendering
                 {
                     //Apply certain matrices based on type. Note, env sphere camera uses normal matrix
                     if (MP.TextureCoords[i].MappingType == H3DTextureMappingType.ProjectionMap)
-                        MS.Transforms[i] = Renderer.Camera.ViewMatrix * MS.Transforms[i];
+                        Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0 + (3 * i), Renderer.Camera.ViewMatrix * MS.Transforms[i]);
+                    else
+                        Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0 + (3 * i), MS.Transforms[i]);
                 }
 
                 Shader.SetVtxVector4(DefaultShaderIds.MatAmbi, MatAmbient);
                 Shader.SetVtxVector4(DefaultShaderIds.MatDiff, MatDiffuse);
-                Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0, MS.Transforms[0]);
-                Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx1, MS.Transforms[1]);
-                Shader.SetVtx2x4Array(DefaultShaderIds.TexMtx2, MS.Transforms[2]);
 
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.EmissionUniform),  MS.Emission);
                 GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AmbientUniform),   MS.Ambient);
