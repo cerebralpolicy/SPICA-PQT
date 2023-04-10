@@ -95,16 +95,6 @@ namespace SPICA.Formats.CtrGfx.Model
 
                         M.Attributes.Add(Attr.ToPICAAttribute());
 
-                        int Length = Attr.Elements;
-
-                        switch (Attr.Format)
-                        {
-                            case GfxGLDataType.GL_SHORT: Length <<= 1; break;
-                            case GfxGLDataType.GL_FLOAT: Length <<= 2; break;
-                        }
-
-                        M.VertexStride += Length;
-
                         Vector4[] Vectors = Attr.GetVectors();
 
                         if (Vertices == null)
@@ -173,6 +163,10 @@ namespace SPICA.Formats.CtrGfx.Model
 
                 if (Vertices != null)
                 {
+                    //If any vertex buffers use one single buffer, recalculate the total stride based on all attributes setup
+                    if (Shape.VertexBuffers.Any(x => x is GfxAttribute))
+                        M.VertexStride = VerticesConverter.CalculateStride(M.Attributes);
+
                     M.RawBuffer = VerticesConverter.GetBuffer(Vertices, M.Attributes);
                 }
 
