@@ -13,7 +13,7 @@ namespace SPICA.Rendering.Animation
 {
     public class SkeletalAnimation : AnimationControl
     {
-        private class Bone
+        public class Bone
         {
             public Vector3    Scale;
             public Vector3    EulerRotation;
@@ -42,7 +42,7 @@ namespace SPICA.Rendering.Animation
 
         private H3DDict<H3DBone> Skeleton;
 
-        private Bone[] FrameSkeleton;
+        public Bone[] FrameSkeleton;
 
         private Matrix4[] Transforms;
 

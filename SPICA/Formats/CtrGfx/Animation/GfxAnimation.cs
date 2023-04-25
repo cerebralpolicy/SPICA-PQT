@@ -439,19 +439,30 @@ namespace SPICA.Formats.CtrGfx.Animation
 
         public void FromH3D(H3DAnimation animation)
         {
+            //Note this code is only for material animations for the time being.
+
             this.Name = animation.Name;
             this.FramesCount = animation.FramesCount;
             this.Elements.Clear();
+
+            switch (animation.AnimationType)
+            {
+                case H3DAnimationType.Skeletal: this.TargetAnimGroupName = "SkeletalAnimation"; break;
+                case H3DAnimationType.Material: this.TargetAnimGroupName = "MaterialAnimation"; break;
+                case H3DAnimationType.Visibility: this.TargetAnimGroupName = "VisibilityAnimation"; break;
+                case H3DAnimationType.Light: this.TargetAnimGroupName = "LightAnimation"; break;
+                case H3DAnimationType.Camera: this.TargetAnimGroupName = "CameraAnimation"; break;
+                case H3DAnimationType.Fog: this.TargetAnimGroupName = "FogAnimation"; break;
+            }
 
             foreach (var elem in animation.Elements)
             {
                 string MaterialTarget(string target)
                 {
-                    return @"Materials[\" + '"' + elem.Name + @"\" + '"' + @"]." + target;
+                    return @"Materials[""" + elem.Name + @"""]." + target;
                 }
 
                 GfxAnimationElement gfxElement = new GfxAnimationElement();
-                gfxElement.Flags = 8;
                 this.Elements.Add(gfxElement);
 
                 switch (elem.TargetType)
@@ -548,7 +559,7 @@ namespace SPICA.Formats.CtrGfx.Animation
                                     Path = textures[i],
                                     Name = "", //only need to set path
                                 };
-                            CopyKeyFrames((H3DFloatKeyFrameGroup)elem.Content, animTex.Texture);
+                            CopyKeyFrames(((H3DAnimFloat)elem.Content).Value, animTex.Texture);
                             gfxElement.Content = animTex;
                         }
                         break;

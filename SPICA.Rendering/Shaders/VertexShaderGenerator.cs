@@ -9,11 +9,11 @@ namespace SPICA.Rendering.Shaders
     {
         public VertexShaderGenerator(ShaderBinary SHBin) : base(SHBin) { }
 
-        public string GetVtxShader(int ProgramIndex, bool HasGeoShader, out ShaderNameBlock Names)
+        public string GetVtxShader(int ProgramIndex, bool HasGeoShader, out ShaderNameBlock Names, string funcName = "main")
         {
             ShaderProgram Program = SHBin.Programs[ProgramIndex];
 
-            Initialize(Program);
+            Initialize(Program, funcName);
 
             StringBuilder Output = new StringBuilder();
 

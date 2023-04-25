@@ -130,7 +130,7 @@ namespace SPICA.Rendering.Shaders
 
         /* Initialization */
 
-        protected void Initialize(ShaderProgram Program)
+        protected void Initialize(ShaderProgram Program, string func = "main")
         {
             Procs = new Queue<ProcInfo>();
 
@@ -138,18 +138,37 @@ namespace SPICA.Rendering.Shaders
 
             Labels = new Dictionary<uint, string>();
 
-            Procs.Enqueue(new ProcInfo()
+            if (func == "main")
             {
-                Name   = "main",
-                Offset = Program.MainOffset,
-                Length = Program.EndMainOffset - Program.MainOffset
-            });
+                Procs.Enqueue(new ProcInfo()
+                {
+                    Name = "main",
+                    Offset = Program.MainOffset,
+                    Length = Program.EndMainOffset - Program.MainOffset
+                });
+            }
+            else
+            {
+                foreach (ShaderLabel Lbl in Program.Labels)
+                {
+                    if (Lbl.Name == func)
+                    {
+                        Procs.Enqueue(new ProcInfo()
+                        {
+                            Name = Lbl.Name,
+                            Offset = Lbl.Offset,
+                            Length = Program.EndMainOffset - Lbl.Offset
+                        }); ;
+                    }
+                }
+            }
 
             foreach (ShaderLabel Lbl in Program.Labels)
             {
                 if (Lbl.Name != "endmain")
                 {
-                    Labels.Add(Lbl.Offset, Lbl.Name);
+                    if (!Labels.ContainsKey(Lbl.Offset))
+                        Labels.Add(Lbl.Offset, Lbl.Name);
                 }
             }
         }

@@ -18,7 +18,7 @@ namespace SPICA.Formats.CtrGfx.AnimGroup
 
         public int MemberType;
 
-        public readonly GfxDict<GfxAnimGroupElement> Elements;
+        public GfxDict<GfxAnimGroupElement> Elements;
 
         public int[] BlendOperationTypes;
 
