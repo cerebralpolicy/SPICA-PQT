@@ -433,8 +433,8 @@ namespace SPICA.PICA.Converters
                                         break;
                                     case PICATextureFormat.HiLo8: //RG8
                                         {
-                                            writer.Write(Input[IOffs + 2]);
                                             writer.Write(Input[IOffs + 1]);
+                                            writer.Write(Input[IOffs + 0]);
                                         }
                                         break;
                                     default: throw new NotImplementedException();
