@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace SPICA.Formats.CtrGfx.Light
 {
-    class GfxFragmentLight : GfxLight
+    public class GfxFragmentLight : GfxLight
     {
         public GfxLightType Type;
 

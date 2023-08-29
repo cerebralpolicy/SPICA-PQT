@@ -61,5 +61,12 @@ namespace SPICA.Formats.CtrH3D.Light
         [TypeChoice((uint)H3DLightType.FragmentPoint, typeof(H3DFragmentLight))]
         [TypeChoice((uint)H3DLightType.FragmentSpot,  typeof(H3DFragmentLight))]
         public object Content;
+
+        public H3DLight()
+        {
+            IsEnabled = true;
+            Type = H3DLightType.Fragment;
+            Content = new H3DFragmentLight();
+        }
     }
 }

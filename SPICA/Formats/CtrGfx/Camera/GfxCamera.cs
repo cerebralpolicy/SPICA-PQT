@@ -112,5 +112,86 @@ namespace SPICA.Formats.CtrGfx.Camera
 
             return Output;
         }
+
+        public void FromH3D(H3DCamera camera)
+        {
+            this.TransformTranslation = camera.TransformTranslation;
+            this.TransformRotation = camera.TransformRotation;
+            this.TransformScale = camera.TransformScale;
+            this.ViewType = (GfxCameraViewType)camera.ViewType;
+
+            switch (camera.ProjectionType)
+            {
+                case H3DCameraProjectionType.Perspective:
+                    this.ProjectionType = GfxCameraProjectionType.Perspective;
+                    break;
+                    //Todo
+              /*  case H3DCameraProjectionType.Frustum:
+                    this.ProjectionType = GfxCameraProjectionType.Frustum;
+                    break;*/
+                case H3DCameraProjectionType.Orthogonal:
+                    this.ProjectionType = GfxCameraProjectionType.Orthogonal;
+                    break;
+            }
+            this.WScale = camera.WScale;
+
+            if (camera.View is H3DCameraViewAim ViewAim)
+            {
+                this.View = new GfxCameraViewAim()
+                {
+                    Target = ViewAim.Target,
+                    Twist = ViewAim.Twist
+                };
+                if (camera.Flags.HasFlag(H3DCameraFlags.IsInheritingTargetTranslation))
+                    ((GfxCameraViewAim)this.View).Flags = GfxCameraViewAimFlags.IsInheritingTargetTranslation;
+                if (camera.Flags.HasFlag(H3DCameraFlags.IsInheritingTargetRotation))
+                    ((GfxCameraViewAim)this.View).Flags = GfxCameraViewAimFlags.IsInheritingTargetRotation;
+            }
+            else if (camera.View is H3DCameraViewLookAt ViewLookAt)
+            {
+                this.View = new GfxCameraViewLookAt()
+                {
+                    Target = ViewLookAt.Target,
+                    UpVector = ViewLookAt.UpVector,
+                };
+                if (camera.Flags.HasFlag(H3DCameraFlags.IsInheritingUpRotation))
+                    ((GfxCameraViewLookAt)this.View).Flags = GfxCameraViewLookAtFlags.IsInheritingUpRotation;
+                if (camera.Flags.HasFlag(H3DCameraFlags.IsInheritingTargetRotation))
+                    ((GfxCameraViewLookAt)this.View).Flags = GfxCameraViewLookAtFlags.IsInheritingTargetRotation;
+                if (camera.Flags.HasFlag(H3DCameraFlags.IsInheritingTargetTranslation))
+                    ((GfxCameraViewLookAt)this.View).Flags = GfxCameraViewLookAtFlags.IsInheritingTargetTranslation;
+            }
+            else if (camera.View is H3DCameraViewRotation ViewRotation)
+            {
+                this.View = new GfxCameraViewRotation()
+                {
+                    Rotation = ViewRotation.Rotation,
+                    IsInheritingRotation = camera.Flags.HasFlag(H3DCameraFlags.IsInheritingUpRotation),
+                };
+            }
+
+            if (camera.Projection is H3DCameraProjectionPerspective ProjPersp)
+            {
+                this.Projection = new GfxCameraProjectionPerspective()
+                {
+                    ZNear = ProjPersp.ZNear,
+                    ZFar = ProjPersp.ZFar,
+                    AspectRatio = ProjPersp.AspectRatio,
+                    FOVY = ProjPersp.FOVY
+                };
+            }
+            else if (camera.Projection is H3DCameraProjectionOrthogonal)
+            {
+                H3DCameraProjectionOrthogonal ProjOrtho = (H3DCameraProjectionOrthogonal)camera.Projection;
+
+                this.Projection = new GfxCameraProjectionOrthogonal()
+                {
+                    ZNear = ProjOrtho.ZNear,
+                    ZFar = ProjOrtho.ZFar,
+                    AspectRatio = ProjOrtho.AspectRatio,
+                    Height = ProjOrtho.Height
+                };
+            }
+        }
     }
 }
