@@ -15,9 +15,11 @@ namespace SPICA.Formats.CtrGfx.AnimGroup
     [TypeChoice(0x40000000u, typeof(GfxAnimGroupBone))]
     [TypeChoice(0x80000000u, typeof(GfxAnimGroupTexCoord))]
 
-    [TypeChoice(0x00800000u, typeof(GfxAnimGroupLight))]
-    [TypeChoice(0x00100000u, typeof(GfxAnimGroupLight2))]
-
+    [TypeChoice(0x00100000u, typeof(GfxAnimGroup001000))] 
+    [TypeChoice(0x00200000u, typeof(GfxAnimGroup002000))] //Camera near/far/fov/aspect
+    [TypeChoice(0x00400000u, typeof(GfxAnimGroup004000))] //Camera target pos/up vec
+    [TypeChoice(0x00800000u, typeof(GfxAnimGroup008000))] //Transform
+    [TypeChoice(0x00040000u, typeof(GfxAnimGroup00040000))] //Fog color
     public class GfxAnimGroupElement : INamed
     {
         private string _Name;
@@ -38,5 +40,55 @@ namespace SPICA.Formats.CtrGfx.AnimGroup
         public uint MemberType;
 
         private uint MaterialPtr;
+    }
+
+    public class GfxAnimGroup001000 : GfxAnimGroupElement
+    {
+        private GfxAnimGroupObjType ObjType2;
+
+        public GfxAnimGroup001000()
+        {
+            ObjType2 = (GfxAnimGroupObjType)10;
+        }
+    }
+
+    public class GfxAnimGroup002000 : GfxAnimGroupElement
+    {
+        private GfxAnimGroupObjType ObjType2;
+
+        public GfxAnimGroup002000()
+        {
+            ObjType2 = (GfxAnimGroupObjType)10;
+        }
+    }
+
+    public class GfxAnimGroup004000 : GfxAnimGroupElement
+    {
+        private GfxAnimGroupObjType ObjType2;
+
+        public GfxAnimGroup004000()
+        {
+            ObjType2 = (GfxAnimGroupObjType)10;
+        }
+    }
+
+    public class GfxAnimGroup008000 : GfxAnimGroupElement
+    {
+        private GfxAnimGroupObjType ObjType2;
+
+        public GfxAnimGroup008000()
+        {
+            ObjType2 = (GfxAnimGroupObjType)10;
+        }
+    }
+
+    public class GfxAnimGroup00040000 : GfxAnimGroupElement
+    {
+        private GfxAnimGroupObjType ObjType2;
+
+        public GfxAnimGroup00040000()
+        {
+            ObjType2 = (GfxAnimGroupObjType)10;
+        }
     }
 }

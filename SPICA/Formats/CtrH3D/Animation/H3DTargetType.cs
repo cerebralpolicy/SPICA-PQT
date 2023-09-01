@@ -59,6 +59,9 @@
 
         ModelVisibility,
 
-        FogColor
+        FogColor,
+
+        //Add extras for bcres conversion
+        CameraFovY,
     }
 }

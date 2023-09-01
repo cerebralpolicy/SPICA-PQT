@@ -15,5 +15,15 @@ namespace SPICA.Formats.CtrH3D.Light
 
         public float SpotExponent;
         public float SpotCutOffAngle;
+
+        public H3DVertexLight() 
+        {
+            DiffuseColor = Vector4.One;
+            AmbientColor = new Vector4(0, 0, 0, 1f);
+            Direction = new Vector3(0, -1f, 0);
+            AttenuationConstant = 1F;
+            SpotExponent = 1f;
+            SpotCutOffAngle = 1.571f;
+        }
     }
 }

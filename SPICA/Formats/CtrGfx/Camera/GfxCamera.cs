@@ -16,6 +16,15 @@ namespace SPICA.Formats.CtrGfx.Camera
 
         public float WScale;
 
+        public GfxCamera() 
+        {
+            ViewType = GfxCameraViewType.Rotate;
+            ProjectionType = GfxCameraProjectionType.Perspective;
+            WScale = 1F;
+            View = new GfxCameraViewRotation();
+            Projection = new GfxCameraProjectionPerspective();
+        }
+
         public H3DCamera ToH3DCamera()
         {
             H3DCamera Output = new H3DCamera() { Name = Name };

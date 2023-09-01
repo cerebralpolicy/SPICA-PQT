@@ -23,6 +23,24 @@ namespace SPICA.Math3D
             this.A = A;
         }
 
+        public static RGBA FromFloat(Vector4 vec)
+        {
+            return new SPICA.Math3D.RGBA(
+                                (byte)(vec.X * 255),
+                                (byte)(vec.Y * 255),
+                                (byte)(vec.Z * 255),
+                                (byte)(vec.W * 255));
+        }
+
+        public static RGBA FromFloat(float R, float G, float B, float A)
+        {
+            return new SPICA.Math3D.RGBA(
+                                (byte)(R * 255),
+                                (byte)(G * 255),
+                                (byte)(B * 255),
+                                (byte)(A * 255));
+        }
+
         public RGBA(uint Param)
         {
             R = (byte)(Param >>  0);

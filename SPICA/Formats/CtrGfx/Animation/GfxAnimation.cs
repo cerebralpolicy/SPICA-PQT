@@ -46,6 +46,13 @@ namespace SPICA.Formats.CtrGfx.Animation
         private const string ProjectionUpdaterNear = "ProjectionUpdater.Near";
         private const string ProjectionUpdaterFar  = "ProjectionUpdater.Far";
         private const string ProjectionUpdaterFOVY = "ProjectionUpdater.Fovy";
+        private const string ProjectionUpdaterHeight = "ProjectionUpdater.Height";
+        private const string ProjectionUpdaterAspect = "ProjectionUpdater.Aspect";
+
+        private const string LightDistanceAttenuationStart = "DistanceAttenuationStart";
+        private const string LightDistanceAttenuationEnd = "DistanceAttenuationEnd";
+
+        private const string LightLerpFactor = "LerpFactor";
 
         public GfxAnimation()
         {
@@ -53,6 +60,7 @@ namespace SPICA.Formats.CtrGfx.Animation
             MetaData = new GfxDict<GfxMetaData>();
             this.Header.MagicNumber = 0x4D4E4143;
             this.Header.Revision = 117440512;
+            this.LoopMode = GfxLoopMode.Loop;
         }
 
         public H3DAnimation ToH3DAnimation()
@@ -97,33 +105,32 @@ namespace SPICA.Formats.CtrGfx.Animation
 
                             string Name = Elem.Name;
 
-                            if (Name == ProjectionUpdaterNear)
+                            switch (Name)
                             {
-                                TargetType = H3DTargetType.CameraZNear;
-                            }
-                            else if (Name == ProjectionUpdaterFar)
-                            {
-                                TargetType = H3DTargetType.CameraZFar;
-                            }
-                            else if (Name == ViewUpdaterTwist)
-                            {
-                                TargetType = H3DTargetType.CameraTwist;
-                            }
-                            else
-                            {
-                                Match Path = Regex.Match(Elem.Name, MatCoordRotREx);
+                                case ProjectionUpdaterNear: TargetType = H3DTargetType.CameraZNear; break;
+                                case ProjectionUpdaterFar: TargetType = H3DTargetType.CameraZFar; break;
+                                case ProjectionUpdaterHeight: TargetType = H3DTargetType.CameraHeight; break;
+                                case ProjectionUpdaterFOVY: TargetType = H3DTargetType.CameraFovY; break;
+                                case ProjectionUpdaterAspect: TargetType = H3DTargetType.CameraAspectRatio; break;
+                                case ViewUpdaterTwist: TargetType = H3DTargetType.CameraTwist; break;
+                                case LightDistanceAttenuationStart: TargetType = H3DTargetType.LightAttenuationStart; break;
+                                case LightDistanceAttenuationEnd: TargetType = H3DTargetType.LightAttenuationEnd; break;
+                                case LightLerpFactor: TargetType = H3DTargetType.LightInterpolationFactor; break;
+                                default:
+                                    Match Path = Regex.Match(Elem.Name, MatCoordRotREx);
 
-                                if (Path.Success && int.TryParse(Path.Groups[2].Value, out int CoordIdx))
-                                {
-                                    Name = Path.Groups[1].Value;
-
-                                    switch (CoordIdx)
+                                    if (Path.Success && int.TryParse(Path.Groups[2].Value, out int CoordIdx))
                                     {
-                                        case 0: TargetType = H3DTargetType.MaterialTexCoord0Rot; break;
-                                        case 1: TargetType = H3DTargetType.MaterialTexCoord1Rot; break;
-                                        case 2: TargetType = H3DTargetType.MaterialTexCoord2Rot; break;
-                                    }                                    
-                                }
+                                        Name = Path.Groups[1].Value;
+
+                                        switch (CoordIdx)
+                                        {
+                                            case 0: TargetType = H3DTargetType.MaterialTexCoord0Rot; break;
+                                            case 1: TargetType = H3DTargetType.MaterialTexCoord1Rot; break;
+                                            case 2: TargetType = H3DTargetType.MaterialTexCoord2Rot; break;
+                                        }
+                                    }
+                                    break;
                             }
 
                             if (TargetType != 0)
@@ -300,52 +307,86 @@ namespace SPICA.Formats.CtrGfx.Animation
                             CopyKeyFrames(((GfxAnimRGBA)Elem.Content).B, RGBA.B);
                             CopyKeyFrames(((GfxAnimRGBA)Elem.Content).A, RGBA.A);
 
-                            Match Path = Regex.Match(Elem.Name, MatColorREx);
-
                             H3DTargetType TargetType = 0;
 
-                            if (Path.Success)
+                            if (Output.AnimationType == H3DAnimationType.Material)
                             {
-                                switch (Path.Groups[2].Value)
-                                {
-                                    case "Emission":  TargetType = H3DTargetType.MaterialEmission;  break;
-                                    case "Ambient":   TargetType = H3DTargetType.MaterialAmbient;   break;
-                                    case "Diffuse":   TargetType = H3DTargetType.MaterialDiffuse;   break;
-                                    case "Specular0": TargetType = H3DTargetType.MaterialSpecular0; break;
-                                    case "Specular1": TargetType = H3DTargetType.MaterialSpecular1; break;
-                                    case "Constant0": TargetType = H3DTargetType.MaterialConstant0; break;
-                                    case "Constant1": TargetType = H3DTargetType.MaterialConstant1; break;
-                                    case "Constant2": TargetType = H3DTargetType.MaterialConstant2; break;
-                                    case "Constant3": TargetType = H3DTargetType.MaterialConstant3; break;
-                                    case "Constant4": TargetType = H3DTargetType.MaterialConstant4; break;
-                                    case "Constant5": TargetType = H3DTargetType.MaterialConstant5; break;
-                                }
-                            }
-                            else
-                            {
-                                Path = Regex.Match(Elem.Name, MatMapperBCREx);
+                                Match Path = Regex.Match(Elem.Name, MatColorREx);
 
-                                if (Path.Success && int.TryParse(Path.Groups[2].Value, out int MapperIdx))
+                                if (Path.Success)
                                 {
-                                    switch (MapperIdx)
+                                    switch (Path.Groups[2].Value)
                                     {
-                                        case 0: TargetType = H3DTargetType.MaterialMapper0BorderCol; break;
-                                        case 1: TargetType = H3DTargetType.MaterialMapper1BorderCol; break;
-                                        case 2: TargetType = H3DTargetType.MaterialMapper2BorderCol; break;
+                                        case "Emission": TargetType = H3DTargetType.MaterialEmission; break;
+                                        case "Ambient": TargetType = H3DTargetType.MaterialAmbient; break;
+                                        case "Diffuse": TargetType = H3DTargetType.MaterialDiffuse; break;
+                                        case "Specular0": TargetType = H3DTargetType.MaterialSpecular0; break;
+                                        case "Specular1": TargetType = H3DTargetType.MaterialSpecular1; break;
+                                        case "Constant0": TargetType = H3DTargetType.MaterialConstant0; break;
+                                        case "Constant1": TargetType = H3DTargetType.MaterialConstant1; break;
+                                        case "Constant2": TargetType = H3DTargetType.MaterialConstant2; break;
+                                        case "Constant3": TargetType = H3DTargetType.MaterialConstant3; break;
+                                        case "Constant4": TargetType = H3DTargetType.MaterialConstant4; break;
+                                        case "Constant5": TargetType = H3DTargetType.MaterialConstant5; break;
                                     }
                                 }
-                            }
+                                else
+                                {
+                                    Path = Regex.Match(Elem.Name, MatMapperBCREx);
 
-                            if (Path.Success && TargetType != 0)
+                                    if (Path.Success && int.TryParse(Path.Groups[2].Value, out int MapperIdx))
+                                    {
+                                        switch (MapperIdx)
+                                        {
+                                            case 0: TargetType = H3DTargetType.MaterialMapper0BorderCol; break;
+                                            case 1: TargetType = H3DTargetType.MaterialMapper1BorderCol; break;
+                                            case 2: TargetType = H3DTargetType.MaterialMapper2BorderCol; break;
+                                        }
+                                    }
+                                }
+
+                                if (Path.Success && TargetType != 0)
+                                {
+                                    string Name = Path.Groups[1].Value;
+
+                                    Output.Elements.Add(new H3DAnimationElement()
+                                    {
+                                        Name = Name,
+                                        Content = RGBA,
+                                        PrimitiveType = H3DPrimitiveType.RGBA,
+                                        TargetType = TargetType
+                                    });
+                                }
+                            }
+                            else if (Output.AnimationType == H3DAnimationType.Light)
                             {
-                                string Name = Path.Groups[1].Value;
+                                switch (Elem.Name)
+                                {
+                                    case "Ambient": TargetType = H3DTargetType.LightAmbient; break;
+                                    case "Diffuse": TargetType = H3DTargetType.LightDiffuse; break;
+                                    case "Specular0": TargetType = H3DTargetType.LightSpecular0; break;
+                                    case "Specular1": TargetType = H3DTargetType.LightSpecular1; break;
+                                    case "GroundColor": TargetType = H3DTargetType.LightSky; break;
+                                    case "SkyColor": TargetType = H3DTargetType.LightGround; break;
+                                }
+                                Output.Elements.Add(new H3DAnimationElement()
+                                {
+                                    Name = Elem.Name,
+                                    Content = RGBA,
+                                    PrimitiveType = H3DPrimitiveType.RGBA,
+                                    TargetType = TargetType
+                                });
+                            }
+                            else if (Output.AnimationType == H3DAnimationType.Fog)
+                            {
+                                TargetType = H3DTargetType.FogColor;
 
                                 Output.Elements.Add(new H3DAnimationElement()
                                 {
-                                    Name          = Name,
-                                    Content       = RGBA,
+                                    Name = Elem.Name,
+                                    Content = RGBA,
                                     PrimitiveType = H3DPrimitiveType.RGBA,
-                                    TargetType    = TargetType
+                                    TargetType = TargetType
                                 });
                             }
                         }
@@ -440,8 +481,6 @@ namespace SPICA.Formats.CtrGfx.Animation
         public void FromH3D(H3DAnimation animation)
         {
             //Note this code is only for material animations for the time being.
-
-            this.Name = animation.Name;
             this.FramesCount = animation.FramesCount;
             this.Elements.Clear();
 
@@ -457,9 +496,32 @@ namespace SPICA.Formats.CtrGfx.Animation
 
             foreach (var elem in animation.Elements)
             {
+                //skip these types on conversion atm
+                switch (elem.PrimitiveType)
+                {
+                    case H3DPrimitiveType.QuatTransform:
+                    case H3DPrimitiveType.MtxTransform:
+                        continue;
+                }
+
                 string MaterialTarget(string target)
                 {
                     return @"Materials[""" + elem.Name + @"""]." + target;
+                }
+
+                string MeshNodeVisibilitiesTarget(string target)
+                {
+                    return @"MeshNodeVisibilities[""" + elem.Name + @"""]." + target;
+                }
+
+                string MeshTarget(string target)
+                {
+                    return @"Meshes[""" + elem.Name + @"""]." + target;
+                }
+
+                string CameraTarget(string target)
+                {
+                    return target;
                 }
 
                 GfxAnimationElement gfxElement = new GfxAnimationElement();
@@ -490,6 +552,36 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DTargetType.MaterialConstant3: gfxElement.Name = MaterialTarget("MaterialColor.Constant3"); break;
                     case H3DTargetType.MaterialConstant4: gfxElement.Name = MaterialTarget("MaterialColor.Constant4"); break;
                     case H3DTargetType.MaterialConstant5: gfxElement.Name = MaterialTarget("MaterialColor.Constant5"); break;
+
+                    case H3DTargetType.CameraTransform: gfxElement.Name = "Transform"; break;
+
+                    case H3DTargetType.CameraTargetPos: gfxElement.Name = "ViewUpdater.TargetPosition"; break;
+                    case H3DTargetType.CameraUpVector: gfxElement.Name = "ViewUpdater.UpwardVector"; break;
+                    case H3DTargetType.CameraViewRotation: gfxElement.Name = "ViewUpdater.ViewRotate"; break;
+                    case H3DTargetType.CameraTwist: gfxElement.Name = "ViewUpdater.Twist"; break;
+
+                    case H3DTargetType.CameraZNear: gfxElement.Name = "ProjectionUpdater.Near"; break;
+                    case H3DTargetType.CameraZFar: gfxElement.Name = "ProjectionUpdater.Far"; break;
+                    case H3DTargetType.CameraAspectRatio: gfxElement.Name = "ProjectionUpdater.AspectRatio"; break;
+                    case H3DTargetType.CameraFovY: gfxElement.Name = "ProjectionUpdater.Fovy"; break;
+                    case H3DTargetType.CameraHeight: gfxElement.Name = "ProjectionUpdater.Height"; break;
+
+                    case H3DTargetType.MeshNodeVisibility: gfxElement.Name = MeshNodeVisibilitiesTarget("IsVisible"); break;
+                    case H3DTargetType.ModelVisibility: gfxElement.Name = "IsVisible"; break;
+                    case H3DTargetType.LightEnabled: gfxElement.Name = "IsLightEnabled"; break;
+                    case H3DTargetType.LightTransform: gfxElement.Name = "Transform"; break;
+                    case H3DTargetType.LightDiffuse: gfxElement.Name = "Diffuse"; break;
+                    case H3DTargetType.LightAmbient: gfxElement.Name = "Ambient"; break;
+                    case H3DTargetType.LightSpecular0: gfxElement.Name = "Specular0"; break;
+                    case H3DTargetType.LightSpecular1: gfxElement.Name = "Specular1"; break;
+                    case H3DTargetType.LightDirection: gfxElement.Name = "Direction"; break;
+                    case H3DTargetType.LightAttenuationStart: gfxElement.Name = LightDistanceAttenuationStart; break;
+                    case H3DTargetType.LightAttenuationEnd: gfxElement.Name = LightDistanceAttenuationEnd; break;
+                    case H3DTargetType.LightInterpolationFactor: gfxElement.Name = LightLerpFactor; break;
+                    case H3DTargetType.LightGround: gfxElement.Name = "GroundColor"; break;
+                    case H3DTargetType.LightSky: gfxElement.Name = "SkyColor"; break;
+
+                    case H3DTargetType.FogColor: gfxElement.Name = "Color"; break;
                 }
 
                 switch (elem.PrimitiveType)
@@ -497,6 +589,15 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Float:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Float;
+
+                            var animF = new GfxAnimFloat();
+                            CopyKeyFrames(((H3DAnimFloat)elem.Content).Value, animF.Value);
+                            gfxElement.Content = animF;
+                        }
+                        break;
+                    case H3DPrimitiveType.Integer:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Integer;
 
                             var animF = new GfxAnimFloat();
                             CopyKeyFrames(((H3DAnimFloat)elem.Content).Value, animF.Value);
@@ -539,7 +640,6 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DPrimitiveType.Boolean:
                         {
                             gfxElement.PrimitiveType = GfxPrimitiveType.Boolean;
-
                             var animB = new GfxAnimBoolean();
                             CopyKeyFrames(((H3DAnimBoolean)elem.Content), animB);
                             gfxElement.Content = animB;
@@ -563,13 +663,38 @@ namespace SPICA.Formats.CtrGfx.Animation
                             gfxElement.Content = animTex;
                         }
                         break;
+                    case H3DPrimitiveType.Transform:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.Transform;
+
+                            var transform = new GfxAnimTransform();
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).TranslationX, transform.TranslationX);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).TranslationY, transform.TranslationY);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).TranslationZ, transform.TranslationZ);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).ScaleX, transform.ScaleX);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).ScaleY, transform.ScaleY);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).ScaleZ, transform.ScaleZ);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).RotationX, transform.RotationX);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).RotationY, transform.RotationY);
+                            CopyKeyFrames(((H3DAnimTransform)elem.Content).RotationZ, transform.RotationZ);
+                            gfxElement.Content = transform;
+                        }
+                        break;
                 }
             }
         }
 
         private void CopyKeyFrames(H3DAnimBoolean Source, GfxAnimBoolean Target)
         {
+            Target.StartFrame = Source.StartFrame;
+            Target.EndFrame = Source.EndFrame;
+           // Target.PreRepeat = (GfxLoopMode)Source.PreRepeat;
+           // Target.PostRepeat = (GfxLoopMode)Source.PostRepeat;
 
+            foreach (bool KF in Source.Values)
+            {
+                Target.Values.Add(KF);
+            }
         }
 
         private void CopyKeyFrames(GfxFloatKeyFrameGroup Source, H3DFloatKeyFrameGroup Target)
@@ -607,18 +732,9 @@ namespace SPICA.Formats.CtrGfx.Animation
 
             Target.PreRepeat = (GfxLoopType)Source.PreRepeat;
             Target.PostRepeat = (GfxLoopType)Source.PostRepeat;
-
             Target.Quantization = Source.Quantization;
 
-            if (Source.Quantization == KeyFrameQuantization.StepLinear32 ||
-                Source.Quantization == KeyFrameQuantization.StepLinear64)
-            {
-                Target.IsLinear = Source.InterpolationType == H3DInterpolationType.Linear;
-            }
-            else
-            {
-                Target.IsLinear = false;
-            }
+            Target.IsLinear = Source.InterpolationType == H3DInterpolationType.Linear;
 
             foreach (KeyFrame KF in Source.KeyFrames)
             {

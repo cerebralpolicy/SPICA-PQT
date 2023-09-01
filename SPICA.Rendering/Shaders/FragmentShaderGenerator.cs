@@ -9,7 +9,7 @@ using System.Text;
 
 namespace SPICA.Rendering.Shaders
 {
-    class FragmentShaderGenerator
+    public class FragmentShaderGenerator
     {
         public const string EmissionUniform  = "u_EmissionColor";
         public const string AmbientUniform   = "u_AmbientColor";
@@ -366,8 +366,8 @@ namespace SPICA.Rendering.Shaders
             string View       = $"{ShaderOutputRegName.View}";
 
             SB.AppendLine($"\tvec4 NormQuat = normalize({QuatNormal});");
-            SB.AppendLine($"\tvec3 Normal = QuatRotate(NormQuat, SurfNormal);");
-            SB.AppendLine($"\tvec3 Tangent = QuatRotate(NormQuat, SurfTangent);");
+            SB.AppendLine($"\tvec3 Normal = NormQuat.xyz;");
+            SB.AppendLine($"\tvec3 Tangent = NormQuat.xyz;");
 
             //Lights loop start
             SB.AppendLine();

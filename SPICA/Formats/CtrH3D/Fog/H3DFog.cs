@@ -28,5 +28,14 @@ namespace SPICA.Formats.CtrH3D.Fog
         public float Density;
 
         public H3DMetaData MetaData;
+
+        public H3DFog()
+        {
+            Type = H3DFogType.Linear;
+            Color = new RGBA(128, 128, 255, 255);
+            Density = 1f;
+            MinDepth = 1000;
+            MaxDepth = 1000000;
+        }
     }
 }

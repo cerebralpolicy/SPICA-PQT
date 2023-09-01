@@ -20,5 +20,15 @@ namespace SPICA.Formats.CtrGfx.Light
         public float SpotCutOffAngle;
 
         public GfxVertexLightFlags Flags;
+
+        public GfxVertexLight()
+        {
+            DiffuseColor = Vector4.One;
+            AmbientColor = new Vector4(0, 0,0, 1f);
+            Direction = new Vector3(0, -1f, 0);
+            AttenuationConstant = 1F;
+            SpotExponent = 1f;
+            SpotCutOffAngle = 1.571f;
+        }
     }
 }

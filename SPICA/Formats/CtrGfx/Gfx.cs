@@ -165,6 +165,16 @@ namespace SPICA.Formats.CtrGfx
                 Output.LUTs.Add(L);
             }
 
+            foreach (GfxScene Scene in Scenes)
+            {
+                Output.Scenes.Add(Scene.ToH3D());
+            }
+
+            foreach (GfxFog Fog in Fogs)
+            {
+                Output.Fogs.Add(Fog.ToH3D());
+            }
+
             foreach (GfxCamera Camera in Cameras)
             {
                 Output.Cameras.Add(Camera.ToH3DCamera());
