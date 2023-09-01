@@ -169,8 +169,12 @@ namespace SPICA.Formats.CtrGfx.Animation
                             {
                                 TargetType = H3DTargetType.MeshNodeVisibility;
                             }
+                            else if (PathVis.Success)
+                            {
+                                TargetType = H3DTargetType.MeshIndexNodeVisibility;
+                            }
 
-                            if (Path.Success && TargetType != 0)
+                            if ((PathVis.Success || Path.Success) && TargetType != 0)
                             {
                                 string Name = PathVis.Success ? $"Meshes[{PathVis.Groups[1].Value}]" : Path.Groups[1].Value;
 
@@ -580,8 +584,8 @@ namespace SPICA.Formats.CtrGfx.Animation
                     case H3DTargetType.LightInterpolationFactor: gfxElement.Name = LightLerpFactor; break;
                     case H3DTargetType.LightGround: gfxElement.Name = "GroundColor"; break;
                     case H3DTargetType.LightSky: gfxElement.Name = "SkyColor"; break;
-
                     case H3DTargetType.FogColor: gfxElement.Name = "Color"; break;
+                    case H3DTargetType.MeshIndexNodeVisibility:  gfxElement.Name = $"{elem.Name}.IsVisible"; break;
                 }
 
                 switch (elem.PrimitiveType)
@@ -677,6 +681,35 @@ namespace SPICA.Formats.CtrGfx.Animation
                             CopyKeyFrames(((H3DAnimTransform)elem.Content).RotationX, transform.RotationX);
                             CopyKeyFrames(((H3DAnimTransform)elem.Content).RotationY, transform.RotationY);
                             CopyKeyFrames(((H3DAnimTransform)elem.Content).RotationZ, transform.RotationZ);
+                            gfxElement.Content = transform;
+                        }
+                        break;
+                    case H3DPrimitiveType.QuatTransform:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.QuatTransform;
+
+                            var transform = new GfxAnimQuatTransform();
+                            var h3dTransform = (H3DAnimQuatTransform)elem.Content;
+
+                            CopyList(h3dTransform.Translations, transform.Translations);
+                            CopyList(h3dTransform.Rotations, transform.Rotations);
+                            CopyList(h3dTransform.Scales, transform.Scales);
+
+                            gfxElement.Content = transform;
+                        }
+                        break;
+                    case H3DPrimitiveType.MtxTransform:
+                        {
+                            gfxElement.PrimitiveType = GfxPrimitiveType.MtxTransform;
+
+                            var transform = new GfxAnimMtxTransform();
+                            var h3dTransform = (H3DAnimMtxTransform)elem.Content;
+
+                            transform.StartFrame = h3dTransform.StartFrame;
+                            transform.EndFrame = h3dTransform.EndFrame;
+
+                            CopyList(h3dTransform.Frames, transform.Frames);
+
                             gfxElement.Content = transform;
                         }
                         break;

@@ -39,5 +39,13 @@ namespace SPICA.Formats.CtrH3D.Camera
         public object Projection;
 
         public H3DMetaData MetaData;
+
+        public H3DCamera()
+        {
+            View = new H3DCameraViewRotation();
+            Projection = new H3DCameraProjectionPerspective();
+            this.ViewType = H3DCameraViewType.Rotate;
+            this.ProjectionType = H3DCameraProjectionType.Perspective;
+        }
     }
 }

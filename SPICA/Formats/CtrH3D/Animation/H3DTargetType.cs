@@ -63,5 +63,6 @@
 
         //Add extras for bcres conversion
         CameraFovY,
+        MeshIndexNodeVisibility,
     }
 }
