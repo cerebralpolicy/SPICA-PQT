@@ -14,7 +14,7 @@ namespace SPICA.Formats.CtrH3D.Animation
         public string Name
         {
             get => _Name;
-            set => _Name = value ?? throw Exceptions.GetNullException("Name");
+            set => _Name = value ?? "";
         }
 
         public H3DTargetType TargetType;
