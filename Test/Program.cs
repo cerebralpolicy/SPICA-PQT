@@ -3,7 +3,7 @@ using SPICA.Formats.CtrH3D;
 using SPICA.Formats.CtrGfx;
 using SPICA.Formats.Xml;
 
-var h3d = H3D.Open(File.ReadAllBytes("SceneEnvironment1.bch"));
+var h3d = H3D.Open(File.ReadAllBytes("OGMapSHighTech00.bch"));
 foreach (var scene in h3d.Scenes)
 {
     foreach (var f in scene.Fogs)

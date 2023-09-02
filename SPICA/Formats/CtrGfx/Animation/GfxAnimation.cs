@@ -80,6 +80,16 @@ namespace SPICA.Formats.CtrGfx.Animation
                     AnimationFlags = (H3DAnimationFlags)LoopMode
                 };
             }
+            if (TargetAnimGroupName == "CameraAnimation")
+            {
+                Output = new H3DCameraAnim()
+                {
+                    Name = _Name,
+                    FramesCount = FramesCount,
+                    AnimationFlags = (H3DAnimationFlags)LoopMode
+                };
+            }
+            
 
             switch (TargetAnimGroupName)
             {

@@ -202,7 +202,7 @@ namespace SPICA.Formats.CtrGfx
 
             foreach (GfxAnimation CamAnim in CameraAnimations)
             {
-                Output.CameraAnimations.Add(CamAnim.ToH3DAnimation());
+                Output.CameraAnimations.Add((H3DCameraAnim)CamAnim.ToH3DAnimation());
             }
 
             Output.CopyMaterials();
