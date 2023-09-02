@@ -6,5 +6,10 @@ namespace SPICA.Formats.CtrH3D.Camera
     {
         public Vector3 Target;
         public Vector3 UpVector;
+
+        public H3DCameraViewLookAt()
+        {
+            UpVector = new Vector3(0, 1, 0);
+        }
     }
 }
