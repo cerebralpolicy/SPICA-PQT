@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SPICA.Formats.Common;
+using SPICA.Serialization;
 using SPICA.Serialization.Attributes;
 
 using System;
@@ -7,7 +8,7 @@ using System;
 namespace SPICA.Formats.CtrH3D.Animation
 {
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class H3DAnimationElement : INamed
+    public class H3DAnimationElement : INamed, ICustomSerialization
     {
         private string _Name;
 
@@ -55,6 +56,32 @@ namespace SPICA.Formats.CtrH3D.Animation
 
                 _Content = value ?? throw Exceptions.GetNullException("Content");
             }
+        }
+
+        public void Deserialize(BinaryDeserializer Deserializer)
+        {
+            //element enum adds hemi light keying after ver 0x21, shift enum accordingly
+            if (Deserializer.FileVersion <= 0x21)
+            {
+                //Skip over newly added types
+                if (TargetType >= H3DTargetType.LightGround)              TargetType += 1;
+                if (TargetType >= H3DTargetType.LightSky)                 TargetType += 1;
+                if (TargetType >= H3DTargetType.LightInterpolationFactor) TargetType += 1;
+            }
+        }
+
+        bool ICustomSerialization.Serialize(BinarySerializer Serializer)
+        {
+            //element enum adds hemi light keying after ver 0x21, shift enum accordingly
+            if (Serializer.FileVersion <= 0x21)
+            {
+                //Skip over newly added types
+                if (TargetType >= H3DTargetType.LightGround)              TargetType -= 1;
+                if (TargetType >= H3DTargetType.LightSky)                 TargetType -= 1;
+                if (TargetType >= H3DTargetType.LightInterpolationFactor) TargetType -= 1;
+            }
+
+            return false;
         }
     }
 }

@@ -31,7 +31,7 @@ namespace SPICA.Formats.CtrH3D.Model
         [Range] public List<H3DMesh> MeshesLayer2;
         [Range] public List<H3DMesh> MeshesLayer3;
 
-        [IfVersion(CmpOp.Gequal, 7)] public List<H3DSubMeshCulling> SubMeshCullings;
+        [IfVersion(CmpOp.Greater, 5)] public List<H3DSubMeshCulling> SubMeshCullings;
 
         public H3DDict<H3DBone> Skeleton;
 

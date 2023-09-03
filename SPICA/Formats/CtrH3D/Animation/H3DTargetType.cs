@@ -52,17 +52,15 @@
         CameraViewRotation,
         CameraZNear,
         CameraZFar,
+        CameraFovY,
         CameraAspectRatio,
         CameraHeight,
 
         MeshNodeVisibility,
-
         ModelVisibility,
-
         FogColor,
 
         //Add extras for bcres conversion
-        CameraFovY,
         MeshIndexNodeVisibility,
     }
 }

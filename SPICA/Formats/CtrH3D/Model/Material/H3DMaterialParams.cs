@@ -144,7 +144,7 @@ namespace SPICA.Formats.CtrH3D.Model.Material
         public string ShaderReference;
         public string ModelReference;
 
-         public H3DMetaData MetaData;
+        [IfVersion(CmpOp.Gequal, 7)] public H3DMetaData MetaData;
 
         [Ignore] public PICALUTInAbs   LUTInputAbsolute = new PICALUTInAbs();
         [Ignore] public PICALUTInSel   LUTInputSelection = new PICALUTInSel();
