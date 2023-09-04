@@ -708,7 +708,7 @@ namespace SPICA.Rendering
                 {
                     GL.Disable(EnableCap.Blend);
 
-                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), new Vector4(1, 1, 1, 0.1f));
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), new Vector4(1, 1, 1, 0.2f));
 
                     GL.LineWidth(2);
                     GL.StencilFunc(StencilFunction.Equal, 0x0, 0x1);
