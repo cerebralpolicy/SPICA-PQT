@@ -272,6 +272,8 @@ namespace SPICA.Rendering
 
             HashGen.Hash(Params.ShaderReference?.GetHashCode() ?? 0);
 
+            HashGen.Hash(Params.AlphaTest.GetHashCode());
+
             HashGen.Hash(Params.TranslucencyKind.GetHashCode());
 
             HashGen.Hash(Params.TexCoordConfig.GetHashCode());
@@ -360,6 +362,9 @@ namespace SPICA.Rendering
         private static bool CompareMaterials(H3DMaterialParams LHS, H3DMaterialParams RHS)
         {
             bool Equals = true;
+
+            Equals &= LHS.AlphaTest.Enabled == RHS.AlphaTest.Enabled;
+            Equals &= LHS.AlphaTest.Function == RHS.AlphaTest.Function;
 
             Equals &= LHS.ShaderReference == RHS.ShaderReference;
 
