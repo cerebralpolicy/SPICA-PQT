@@ -576,9 +576,15 @@ void proc_transform_matrix() {
 			reg_temp[10].w = vec4(0, 1, 2, 3).y;
 		} else {
 			reg_a0.x = int(vec4(0, 1, 2, 3).x);
-			reg_temp[10].x = dot(UnivReg[0].xyzw, reg_temp[15].xyzw);
-			reg_temp[10].y = dot(UnivReg[1].xyzw, reg_temp[15].xyzw);
-			reg_temp[10].z = dot(UnivReg[2].xyzw, reg_temp[15].xyzw);
+			vec4 p = vec4(0);
+			p.x = dot(UnivReg[0].xyzw, reg_temp[15].xyzw);
+			p.y = dot(UnivReg[1].xyzw, reg_temp[15].xyzw);
+			p.z = dot(UnivReg[2].xyzw, reg_temp[15].xyzw);
+			p.w = vec4(0, 1, 2, 3).y;
+
+			reg_temp[10].x = dot(WrldMtx[0].xyzw, p.xyzw);
+			reg_temp[10].y = dot(WrldMtx[1].xyzw, p.xyzw);
+			reg_temp[10].z = dot(WrldMtx[2].xyzw, p.xyzw);
 			reg_temp[10].w = vec4(0, 1, 2, 3).y;
 		}
 		if (reg_cmp.x && !reg_cmp.y) {

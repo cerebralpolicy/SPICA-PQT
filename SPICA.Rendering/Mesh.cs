@@ -168,7 +168,7 @@ namespace SPICA.Rendering
             }
         }
 
-        public void Render()
+        public void Render(bool is_picking = false)
         {
             Shader Shader = Parent.Shaders[BaseMesh.MaterialIndex];
             var MS = Parent.MaterialStates[BaseMesh.MaterialIndex];
@@ -182,7 +182,11 @@ namespace SPICA.Rendering
 
             GL.BlendColor(Params.BlendColor.ToColor4());
 
+            GL.Enable(EnableCap.CullFace);
             GL.CullFace(Params.FaceCulling.ToCullFaceMode());
+
+            if (Params.FaceCulling == PICAFaceCulling.Never)
+                GL.Disable(EnableCap.CullFace);
 
             GL.Disable(EnableCap.PolygonOffsetFill);
             if (Params.IsPolygonOffsetEnabled)
@@ -191,10 +195,24 @@ namespace SPICA.Rendering
                 GL.PolygonOffset(0, Params.PolygonOffsetUnit);
             }
 
-            SetState(EnableCap.Blend,       Params.ColorOperation.BlendMode == PICABlendMode.Blend);
-            SetState(EnableCap.StencilTest, Params.StencilTest.Enabled);
-            SetState(EnableCap.DepthTest,   Params.DepthColorMask.Enabled);
-            SetState(EnableCap.CullFace,    Params.FaceCulling != PICAFaceCulling.Never);
+            if (!is_picking)
+            {
+                SetState(EnableCap.Blend, Params.ColorOperation.BlendMode == PICABlendMode.Blend);
+                SetState(EnableCap.StencilTest, Params.StencilTest.Enabled);
+
+                if (Params.BlendFunction.ColorSrcFunc == PICABlendFunc.One &&
+                    Params.BlendFunction.ColorEquation == PICABlendEquation.FuncAdd &&
+                    Params.BlendFunction.ColorDstFunc == PICABlendFunc.Zero &&
+                    Params.BlendFunction.AlphaSrcFunc == PICABlendFunc.One &&
+                    Params.BlendFunction.AlphaEquation == PICABlendEquation.FuncAdd &&
+                    Params.BlendFunction.AlphaDstFunc == PICABlendFunc.Zero)
+                {
+                    SetState(EnableCap.Blend, false);
+                }
+            }
+
+            SetState(EnableCap.DepthTest, Params.DepthColorMask.Enabled);
+            SetState(EnableCap.CullFace, Params.FaceCulling != PICAFaceCulling.Never);
 
             Parent.Renderer.TryBindLUT(4, Params.LUTDist0TableName,   Params.LUTDist0SamplerName);
             Parent.Renderer.TryBindLUT(5, Params.LUTDist1TableName,   Params.LUTDist1SamplerName);
@@ -275,9 +293,16 @@ namespace SPICA.Rendering
 
                     GL.Uniform1(BoolsLocation, mesh.BoolUniforms);
 
+                    //  if (BaseMesh.Skinning == (H3DMeshSkinning)3)
+                    //      GL.DrawElements(PrimitiveType.Triangles, SM.Indices.Length, DrawElementsType.UnsignedShort, SM.Indices);
+
                     GL.DrawElements(PrimitiveType.Triangles, SM.Indices.Length, DrawElementsType.UnsignedShort, SM.Indices);
+
+                    //  break;
                 }
             }
+
+            
 
             foreach (H3DSubMesh SM in BaseMesh.SubMeshes)
             {
@@ -369,6 +394,8 @@ namespace SPICA.Rendering
 
                 GL.DrawElements(PrimitiveType.Triangles, SM.Indices.Length, DrawElementsType.UnsignedShort, SM.Indices);
             }
+
+            
 
             GL.BindVertexArray(0);
 

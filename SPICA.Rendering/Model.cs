@@ -41,6 +41,40 @@ namespace SPICA.Rendering
 
         public Matrix4 Transform;
 
+        public string Name
+        {
+            get { return BaseModel.Name; }
+            set { BaseModel.Name = value; }
+        }
+
+        public bool Visible
+        {
+            get { return BaseModel.IsVisible; }
+            set { BaseModel.IsVisible = value; }
+        }
+
+        public Model(Renderer Renderer, Model cache)
+        {
+            //Transfer over all the model data to new model instance
+            this.Renderer = Renderer;
+            this.BaseModel = cache.BaseModel;
+            this.Meshes0 = cache.Meshes0;
+            this.Meshes1 = cache.Meshes1;
+            this.Meshes2 = cache.Meshes2;
+            this.Meshes3 = cache.Meshes3;
+            this.Shaders = cache.Shaders;
+            this.InverseTransforms = cache.InverseTransforms;
+            this.SkeletonTransforms = cache.SkeletonTransforms;
+            this.ShaderHashes = cache.ShaderHashes;
+            this.SkeletalAnim = cache.SkeletalAnim;
+            this.MaterialAnim = cache.MaterialAnim;
+            this.VisibilityAnim = cache.VisibilityAnim;
+            this.Transform = cache.Transform;
+            this.MeshNodeVisibilities = cache.MeshNodeVisibilities;
+            this.MeshIndexVisibilities = cache.MeshIndexVisibilities;
+            this.MaterialStates = cache.MaterialStates;
+        }
+
         public Model(Renderer Renderer, H3DModel BaseModel)
         {
             this.Renderer  = Renderer;
@@ -570,13 +604,69 @@ namespace SPICA.Rendering
             }
         }
 
-        public void RenderLayer1() => RenderMeshes(Meshes0);
-        public void RenderLayer2() => RenderMeshes(Meshes1);
-        public void RenderLayer3() => RenderMeshes(Meshes2);
-        public void RenderLayer4() => RenderMeshes(Meshes3);
+        public void RenderMeshesPicking(Vector4 pickingColor)
+        {
+            RenderMeshesPicking(Meshes0, pickingColor);
+            RenderMeshesPicking(Meshes1, pickingColor);
+            RenderMeshesPicking(Meshes2, pickingColor);
+            RenderMeshesPicking(Meshes3, pickingColor);
+        }
+
+        public void RenderLayer1(bool isRenderSelected) => RenderMeshes(Meshes0, isRenderSelected);
+        public void RenderLayer2(bool isRenderSelected) => RenderMeshes(Meshes1, isRenderSelected);
+        public void RenderLayer3(bool isRenderSelected) => RenderMeshes(Meshes2, isRenderSelected);
+        public void RenderLayer4(bool isRenderSelected) => RenderMeshes(Meshes3, isRenderSelected);
 
 
-        private void RenderMeshes(IEnumerable<Mesh> Meshes)
+        private void RenderMeshesPicking(IEnumerable<Mesh> Meshes, Vector4 pickingColor)
+        {
+            if (!BaseModel.IsVisible)
+                return;
+
+            var transform = Transform * this.BaseModel.WorldTransform.ToMatrix4();
+
+            int index = 0;
+            foreach (Mesh Mesh in Meshes)
+            {
+                int n = Mesh.BaseMesh.NodeIndex;
+
+                if (n < MeshNodeVisibilities.Length && !MeshNodeVisibilities[n])
+                {
+                    continue;
+                }
+
+                if (index < MeshIndexVisibilities.Length && !MeshIndexVisibilities[index])
+                {
+                    continue;
+                }
+
+                index++;
+
+                if (!Mesh.BaseMesh.IsVisible)
+                    continue;
+
+
+                Shader Shader = Shaders[Mesh.BaseMesh.MaterialIndex];
+
+                GL.UseProgram(Shader.Handle);
+
+                var normalMatrix = Matrix4.Identity * Renderer.Camera.ViewMatrix;
+                normalMatrix.Invert();
+                normalMatrix.Transpose();
+
+                Shader.SetVtx4x4Array(DefaultShaderIds.ProjMtx, Renderer.Camera.ProjectionMatrix);
+                Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx, transform * Renderer.Camera.ViewMatrix);
+                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix * transform.ClearScale());
+                Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, Matrix4.Identity);
+
+                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingMode), 1);
+                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingColor), pickingColor);
+
+                Mesh.Render(true);
+            }
+        }
+
+        private void RenderMeshes(IEnumerable<Mesh> Meshes, bool isRenderSelected)
         {
             if (!BaseModel.IsVisible)
                 return;
@@ -607,14 +697,17 @@ namespace SPICA.Rendering
 
                 GL.UseProgram(Shader.Handle);
 
-                var normalMatrix = Matrix4.Identity * Renderer.Camera.ViewMatrix;
+                var normalMatrix = Renderer.Camera.ViewMatrix;
                 normalMatrix.Invert();
                 normalMatrix.Transpose();
 
+                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingMode), 0);
+                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingColor), Vector4.Zero);
+
                 Shader.SetVtx4x4Array(DefaultShaderIds.ProjMtx, Renderer.Camera.ProjectionMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx, transform * Renderer.Camera.ViewMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix * transform.ClearScale());
-                Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, Matrix4.Identity);
+                Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx,  Renderer.Camera.ViewMatrix);
+                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix);
+                Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, transform);
 
                 GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 0);
                 int MaterialIndex = Mesh.BaseMesh.MaterialIndex;
@@ -687,7 +780,7 @@ namespace SPICA.Rendering
                 Shader.SetVtxVector4(DefaultShaderIds.HsLSCol, new Vector4(Renderer.GlobalHsLSCol.X, Renderer.GlobalHsLSCol.Y, Renderer.GlobalHsLSCol.Z, 0.00f));
                 Shader.SetVtxVector4(DefaultShaderIds.HsLSDir, new Vector4(0.0f, 0.95703f, 0.28998f, 0.40f));
 
-                bool isSelected = Mesh.BaseMesh.IsSelected || MP.SelectionColor.W > 0;
+                bool isSelected = isRenderSelected || Mesh.BaseMesh.IsSelected;
 
                 Mesh.Texture0Name = MS.Texture0Name;
                 Mesh.Texture1Name = MS.Texture1Name;
@@ -708,7 +801,7 @@ namespace SPICA.Rendering
                 {
                     GL.Disable(EnableCap.Blend);
 
-                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), new Vector4(1, 1, 1, 0.2f));
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), new Vector4(1, 1, 1, 1));
 
                     GL.LineWidth(2);
                     GL.StencilFunc(StencilFunction.Equal, 0x0, 0x1);

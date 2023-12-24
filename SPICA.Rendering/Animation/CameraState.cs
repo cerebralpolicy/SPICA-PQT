@@ -14,5 +14,10 @@ namespace SPICA.Rendering.Animation
         public float ZNear;
         public float ZFar;
         public float Twist;
+
+        public float AspectRatio;
+        public float Height;
+
+        public float Fov;
     }
 }

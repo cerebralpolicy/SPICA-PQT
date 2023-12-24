@@ -94,6 +94,21 @@ namespace SPICA.Rendering
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
         }
 
+        /// <summary>
+        /// Adds cached instances of an existing render to draw as
+        /// </summary>
+        public void LoadCached(Renderer render)
+        {
+            foreach (var model in render.Models)
+                Models.Add(new Model(render, model));
+            foreach (var tex in render.Textures)
+                Textures.Add(tex.Key, tex.Value);
+            foreach (var lut in render.LUTs)
+                LUTs.Add(lut.Key, lut.Value);
+            foreach (var shr in render.Shaders)
+                Shaders.Add(shr.Key, shr.Value);
+        }
+
         public void Resize(int Width, int Height)
         {
             this.Width  = Width;
@@ -224,16 +239,16 @@ namespace SPICA.Rendering
                 ClearBufferMask.DepthBufferBit);
         }
 
-        public void Render()
+        public void Render(bool isRenderSelected = false)
         {
             foreach (Model Model in Models)
-                Model.RenderLayer1();
+                Model.RenderLayer1(isRenderSelected);
             foreach (Model Model in Models)
-                Model.RenderLayer2();
+                Model.RenderLayer2(isRenderSelected);
             foreach (Model Model in Models)
-                Model.RenderLayer3();
+                Model.RenderLayer3(isRenderSelected);
             foreach (Model Model in Models)
-                Model.RenderLayer4();
+                Model.RenderLayer4(isRenderSelected);
         }
 
 

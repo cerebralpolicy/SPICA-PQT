@@ -22,13 +22,29 @@ namespace SPICA.Rendering
 
         public CameraAnimation Animation;
 
-        private Renderer Renderer;
+        public float Width;
+        public float Height;
+
+        public float AspectRatio;
 
         private H3DCamera BaseCamera;
 
         public Camera(Renderer Renderer)
         {
-            this.Renderer = Renderer;
+            this.Width = Renderer.Width;
+            this.Height = Renderer.Height;
+            this.AspectRatio = (float)Width / Height;
+
+            Animation = new CameraAnimation();
+
+            RecalculateMatrices();
+        }
+
+        public Camera(int width, int height)
+        {
+            this.Width = width;
+            this.Height = height;
+            this.AspectRatio = (float)Width / Height;
 
             Animation = new CameraAnimation();
 
@@ -48,10 +64,12 @@ namespace SPICA.Rendering
         {
             CameraState CamState = Animation.GetCameraState();
 
-            float AspectRatio = (float)Renderer.Width / Renderer.Height;
-
             if (BaseCamera != null)
             {
+                AspectRatio = CamState.AspectRatio;
+                if (BaseCamera.Projection is H3DCameraProjectionOrthogonal)
+                    Height = CamState.Height;
+
                 Matrix4 Transform =
                     Matrix4.CreateScale(CamState.Scale) *
                     Matrix4.CreateRotationX(CamState.Rotation.X) *
@@ -135,7 +153,7 @@ namespace SPICA.Rendering
                 if (BaseCamera.Projection is H3DCameraProjectionPerspective PerspProj)
                 {
                     ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
-                        PerspProj.FOVY,
+                        CamState.Fov,
                         AspectRatio,
                         CamState.ZNear,
                         CamState.ZFar);
@@ -143,8 +161,8 @@ namespace SPICA.Rendering
                 else if (BaseCamera.Projection is H3DCameraProjectionOrthogonal OrthoProj)
                 {
                     ProjectionMatrix = Matrix4.CreateOrthographic(
-                        Renderer.Width,
-                        Renderer.Height,
+                        Width,
+                        Height,
                         CamState.ZNear,
                         CamState.ZFar);
                 }

@@ -27,8 +27,9 @@ namespace SPICA.Rendering.Shaders
         public const string DebugModeUniform = "u_DebugMode";
         public const string DebugLUTModeUniform = "u_DebugLUTMode";
         public const string CombBufferUniform = "u_CombBufferColor";
-
-
+        public const string PickingMode = "u_IsPicking";
+        public const string PickingColor = "PickingColor";
+        
         private StringBuilder SB;
 
         private H3DMaterialParams Params;
@@ -69,7 +70,8 @@ namespace SPICA.Rendering.Shaders
             SB.AppendLine($"uniform vec4 {SelectionUniform};");
             SB.AppendLine($"uniform int {DebugModeUniform};");
             SB.AppendLine($"uniform int {DebugLUTModeUniform};");
-
+            SB.AppendLine($"uniform int {PickingMode};");
+            SB.AppendLine($"uniform vec4 {PickingColor};");
 
             SB.AppendLine();
             SB.AppendLine($"in vec4 {ShaderOutputRegName.QuatNormal};");
@@ -90,6 +92,13 @@ namespace SPICA.Rendering.Shaders
             SB.AppendLine($"\tvec4 CombBuffer = {CombBufferUniform};");
             SB.AppendLine($"\tvec4 FragPriColor = vec4(0, 0, 0, 1);");
             SB.AppendLine("\tvec4 FragSecColor = vec4(0, 0, 0, 1);");
+
+            SB.AppendLine($"\tif ({PickingMode} == 1)");
+            SB.AppendLine("\t{");
+            SB.AppendLine($"\t    Output = {PickingColor};");
+            SB.AppendLine("\t    return;");
+            SB.AppendLine("\t}");
+
 
             int stageId = 0;
             foreach (PICATexEnvStage Stage in Params.TexEnvStages)
@@ -235,7 +244,7 @@ namespace SPICA.Rendering.Shaders
 
             SB.AppendLine($"\tif ({DebugModeUniform} == 1)"); //Show normals
             if (HasFragColors)
-                SB.AppendLine($"\t    Output.rgb = (Normal.rgb * 0.5) + 0.5;");
+                SB.AppendLine($"\t    Output.rgb = ({ShaderOutputRegName.QuatNormal}.rgb * 0.5) + 0.5;");
             else
                 SB.AppendLine($"\t    Output.rgb = vec3(0);");
 
@@ -300,6 +309,16 @@ namespace SPICA.Rendering.Shaders
 
 
             SB.AppendLine($"Output.rgb += {SelectionUniform}.rgb * {SelectionUniform}.a;");
+            if (!Params.AlphaTest.Enabled &&
+                Params.BlendFunction.ColorSrcFunc == PICABlendFunc.One &&
+                Params.BlendFunction.ColorDstFunc == PICABlendFunc.Zero &&
+                Params.BlendFunction.ColorEquation == PICABlendEquation.FuncAdd &&
+                Params.BlendFunction.AlphaSrcFunc == PICABlendFunc.One &&
+                Params.BlendFunction.AlphaDstFunc == PICABlendFunc.Zero &&
+                Params.BlendFunction.AlphaEquation == PICABlendEquation.FuncAdd)
+            {
+                SB.AppendLine($"Output.a = 1.0;");
+            }
 
             SB.AppendLine("}");
 

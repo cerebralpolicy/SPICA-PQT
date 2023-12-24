@@ -53,11 +53,14 @@ namespace SPICA.Rendering.Animation
                 {
                     CamState.ZNear = PerspProj.ZNear;
                     CamState.ZFar  = PerspProj.ZFar;
+                    CamState.AspectRatio = PerspProj.AspectRatio;
+                    CamState.Fov = PerspProj.FOVY;
                 }
                 else if (BaseCamera.Projection is H3DCameraProjectionOrthogonal OrthoProj)
                 {
                     CamState.ZNear = OrthoProj.ZNear;
                     CamState.ZFar  = OrthoProj.ZFar;
+                    CamState.Height = OrthoProj.Height;
                 }
             }
         }
@@ -125,7 +128,10 @@ namespace SPICA.Rendering.Animation
                     {
                         case H3DTargetType.CameraZNear: CamState.ZNear = Value; break;
                         case H3DTargetType.CameraZFar:  CamState.ZFar  = Value; break;
+                        case H3DTargetType.CameraFovY: CamState.Fov = Value; break;
                         case H3DTargetType.CameraTwist: CamState.Twist = Value; break;
+                        case H3DTargetType.CameraAspectRatio: CamState.AspectRatio = Value; break;
+                        case H3DTargetType.CameraHeight: CamState.Height = Value; break;
                     }
                 }
             }
