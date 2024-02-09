@@ -51,6 +51,8 @@ namespace SPICA.Formats.CtrGfx.Model
 
             this.LocalTransform = Math3D.Matrix3x4.Identity;
             this.WorldTransform = Math3D.Matrix3x4.Identity;
+            this.TransformScale = Vector3.One;
+            this.IsBranchVisible = true;
         }
 
         public H3DModel ToH3D()

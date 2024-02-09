@@ -11,6 +11,13 @@ namespace SPICA.Formats.CtrGfx.Light
     {
         public bool IsEnabled;
 
+        public GfxLight()
+        {
+            this.Header.MagicNumber = 0x544C4643; // CFLT
+            this.Header.Revision = 117506048;
+            this.IsBranchVisible = true;
+        }
+
         public H3DLight ToH3DLight()
         {
             H3DLight Output = new H3DLight() { Name = Name };
