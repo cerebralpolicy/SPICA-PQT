@@ -48,7 +48,9 @@ namespace SPICA.Formats.CtrGfx.Model
             this.Header.Revision = 150994944;
 
             Flags = GfxModelFlags.IsVisible;
+            IsBranchVisible = true;
 
+            this.TransformScale = new Vector3(1);
             this.LocalTransform = Math3D.Matrix3x4.Identity;
             this.WorldTransform = Math3D.Matrix3x4.Identity;
             this.TransformScale = Vector3.One;
