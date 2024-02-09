@@ -30,10 +30,13 @@ namespace SPICA.Rendering
         internal string Texture1Name;
         internal string Texture2Name;
 
+        internal int Index { get; private set; }
+
         public Mesh(Model Parent, H3DMesh BaseMesh)
         {
             this.Parent   = Parent;
             this.BaseMesh = BaseMesh;
+            this.Index    = Parent.BaseModel.Meshes.IndexOf(BaseMesh);
 
             PosOffs = BaseMesh.PositionOffset.ToVector4();
 
