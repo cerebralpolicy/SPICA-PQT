@@ -10,6 +10,7 @@ namespace SPICA.Rendering.Animation
         public bool IsAnimated = false;
 
         public Matrix4[] Transforms;
+        public H3DTextureCoord[] TexCoords;
 
         public Color4 Emission;
         public Color4 Ambient;
@@ -30,6 +31,12 @@ namespace SPICA.Rendering.Animation
         public MaterialState()
         {
             Transforms = new Matrix4[3];
+            TexCoords = new H3DTextureCoord[3]
+            {
+                new H3DTextureCoord(),
+                new H3DTextureCoord(),
+                new H3DTextureCoord(),
+            };
         }
 
         public void Reset(H3DMaterial mat)
@@ -55,6 +62,13 @@ namespace SPICA.Rendering.Animation
             Texture0Name = mat.Texture0Name;
             Texture1Name = mat.Texture1Name;
             Texture2Name = mat.Texture2Name;
+
+            TexCoords = new H3DTextureCoord[3]
+            {
+                Params.TextureCoords[0],
+                Params.TextureCoords[1],
+                Params.TextureCoords[2]
+            };
         }
     }
 }
