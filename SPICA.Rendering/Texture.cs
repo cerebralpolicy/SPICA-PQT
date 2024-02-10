@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
 using SPICA.Formats.CtrH3D.Texture;
+using SPICA.Math3D;
 using SPICA.PICA.Commands;
 using System;
 
@@ -40,6 +41,7 @@ namespace SPICA.Rendering
                         PixelType.UnsignedByte,
                         Texture.ToRGBA(Face));
                 }
+                GL.BindTexture(TextureTarget.TextureCubeMap, Id);
             }
             else
             {
@@ -51,15 +53,24 @@ namespace SPICA.Rendering
                     mipCount = 1;
 
                 //Load mipmaps
-               // GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, mipCount - 1);
-                //Force load a filter for mipmaps. Materials will later reconfigure with the right filter to use
-               // if (mipCount > 1)
-                //    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+                GL.TexImage2D(TextureTarget.Texture2D,
+                    0,
+                    PixelInternalFormat.Rgba,
+                    (int)Texture.Width,
+                    (int)Texture.Height,
+                    0,
+                    PixelFormat.Rgba,
+                    PixelType.UnsignedByte,
+                     Texture.ToMipRGBA(0));
 
-                for (int i = 0; i < mipCount; i++)
+                //Allocate for mip maps
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+                for (int i = 1; i < mipCount; i++)
                 {
                     uint mipwidth = (uint)Math.Max(1, Texture.Width >> i);
                     uint mipheight = (uint)Math.Max(1, Texture.Height >> i);
+                    byte[] rgba = Texture.ToMipRGBA(i);
 
                     GL.TexImage2D(TextureTarget.Texture2D,
                         i,
@@ -69,9 +80,10 @@ namespace SPICA.Rendering
                         0,
                         PixelFormat.Rgba,
                         PixelType.UnsignedByte,
-                        Texture.ToMipRGBA(i));
+                        rgba);
                 }
-                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+                GL.BindTexture(TextureTarget.Texture2D, 0);
             }
         }
 
