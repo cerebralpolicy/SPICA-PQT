@@ -139,7 +139,7 @@ namespace SPICA.Rendering
 
         private void AddMeshes(List<Mesh> Dst, List<H3DMesh> Src)
         {
-            foreach (H3DMesh Mesh in Src.OrderBy(x => x.Priority))
+            foreach (H3DMesh Mesh in Src)
             {
                 Dst.Add(new Mesh(this, Mesh));
             }
@@ -625,7 +625,6 @@ namespace SPICA.Rendering
 
             var transform = Transform * this.BaseModel.WorldTransform.ToMatrix4();
 
-            int index = 0;
             foreach (Mesh Mesh in Meshes)
             {
                 int n = Mesh.BaseMesh.NodeIndex;
@@ -635,12 +634,10 @@ namespace SPICA.Rendering
                     continue;
                 }
 
-                if (index < MeshIndexVisibilities.Length && !MeshIndexVisibilities[index])
+                if (Mesh.Index < MeshIndexVisibilities.Length && !MeshIndexVisibilities[Mesh.Index])
                 {
                     continue;
                 }
-
-                index++;
 
                 if (!Mesh.BaseMesh.IsVisible)
                     continue;
@@ -673,147 +670,157 @@ namespace SPICA.Rendering
 
             var transform = Transform * this.BaseModel.WorldTransform.ToMatrix4();
 
-            int index = 0;
-            foreach (Mesh Mesh in Meshes)
+            List<Mesh> PendingMeshes = Meshes.ToList();
+
+            for (int CurrentPriority = 0; CurrentPriority < 256 && PendingMeshes.Count != 0; CurrentPriority++)
             {
-                int n = Mesh.BaseMesh.NodeIndex;
-
-                if (n < MeshNodeVisibilities.Length && !MeshNodeVisibilities[n])
+                PendingMeshes.RemoveAll(Mesh =>
                 {
-                    continue;
-                }
+                    if (Mesh.BaseMesh.Priority != CurrentPriority)
+                    {
+                        return false;
+                    }
 
-                if (index < MeshIndexVisibilities.Length && !MeshIndexVisibilities[index])
-                {
-                    continue;
-                }
+                    int n = Mesh.BaseMesh.NodeIndex;
 
-                index++;
+                    if (n < MeshNodeVisibilities.Length && !MeshNodeVisibilities[n])
+                    {
+                        return true;
+                    }
 
-                if (!Mesh.BaseMesh.IsVisible)
-                    continue;
-
-                Shader Shader = Shaders[Mesh.BaseMesh.MaterialIndex];
-
-                GL.UseProgram(Shader.Handle);
-
-                var normalMatrix = Renderer.Camera.ViewMatrix;
-                normalMatrix.Invert();
-                normalMatrix.Transpose();
-
-                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingMode), 0);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingColor), Vector4.Zero);
-
-                Shader.SetVtx4x4Array(DefaultShaderIds.ProjMtx, Renderer.Camera.ProjectionMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx,  Renderer.Camera.ViewMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix);
-                Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, transform);
-
-                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 0);
-                int MaterialIndex = Mesh.BaseMesh.MaterialIndex;
-
-                H3DMaterialParams MP = BaseModel.Materials[MaterialIndex].MaterialParams;
-
-                MaterialState MS = MaterialStates[Mesh.BaseMesh.MaterialIndex];
-
-                //For updating the UI, apply the current material data to the state unless it is animating
-                if (!MS.IsAnimated)
-                    MS.Reset(BaseModel.Materials[MaterialIndex]);
-
-                Vector4 MatAmbient = new Vector4(
-                    MS.Ambient.R,
-                    MS.Ambient.G,
-                    MS.Ambient.B,
-                    MP.ColorScale);
-
-                Vector4 MatDiffuse = new Vector4(
-                    MS.Diffuse.R,
-                    MS.Diffuse.G,
-                    MS.Diffuse.B,
-                    MS.Diffuse.A);
-
-                Vector4 MatSelect = new Vector4(
-                       MP.SelectionColor.X,
-                       MP.SelectionColor.Y,
-                       MP.SelectionColor.Z,
-                       MP.SelectionColor.W);
+                    if (Mesh.Index < MeshIndexVisibilities.Length && !MeshIndexVisibilities[Mesh.Index])
+                    {
+                        return true;
+                    }
 
 
-                Shader.SetVtxVector4(DefaultShaderIds.TexTran, new Vector4(
-                    MS.Transforms[0].Row3.X,
-                    MS.Transforms[0].Row3.Y,
-                    MS.Transforms[1].Row3.X,
-                    MS.Transforms[1].Row3.Y));
+                    if (!Mesh.BaseMesh.IsVisible)
+                        return true;
 
-                for (int i = 0; i < 3; i++)
-                {
-                    //Apply certain matrices based on type. Note, env sphere camera uses normal matrix
-                    if (MP.TextureCoords[i].MappingType == H3DTextureMappingType.ProjectionMap)
-                        Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0 + (3 * i), Renderer.Camera.ViewMatrix * MS.Transforms[i]);
-                    else
-                        Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0 + (3 * i), MS.Transforms[i]);
-                }
+                    Shader Shader = Shaders[Mesh.BaseMesh.MaterialIndex];
 
-                Shader.SetVtxVector4(DefaultShaderIds.MatAmbi, MatAmbient);
-                Shader.SetVtxVector4(DefaultShaderIds.MatDiff, MatDiffuse);
+                    GL.UseProgram(Shader.Handle);
 
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.EmissionUniform),  MS.Emission);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AmbientUniform),   MS.Ambient);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.DiffuseUniform),   MS.Diffuse);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Specular0Uniform), MS.Specular0);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Specular1Uniform), MS.Specular1);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant0Uniform), MS.Constant0);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant1Uniform), MS.Constant1);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant2Uniform), MS.Constant2);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant3Uniform), MS.Constant3);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant4Uniform), MS.Constant4);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant5Uniform), MS.Constant5);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.CombBufferUniform), MP.TexEnvBufferColor.ToColor4());
+                    var normalMatrix = Renderer.Camera.ViewMatrix;
+                    normalMatrix.Invert();
+                    normalMatrix.Transpose();
 
-                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AlphaRefUniform), MP.AlphaTest.Reference / 255.0f);
-                GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), MatSelect);
+                    GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingMode), 0);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.PickingColor), Vector4.Zero);
 
-                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.DebugModeUniform), Renderer.DebugShadingMode);
-                GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.DebugLUTModeUniform), Renderer.DebugLUTShadingMode);
+                    Shader.SetVtx4x4Array(DefaultShaderIds.ProjMtx, Renderer.Camera.ProjectionMatrix);
+                    Shader.SetVtx3x4Array(DefaultShaderIds.ViewMtx, Renderer.Camera.ViewMatrix);
+                    Shader.SetVtx3x4Array(DefaultShaderIds.NormMtx, normalMatrix);
+                    Shader.SetVtx3x4Array(DefaultShaderIds.WrldMtx, transform);
 
-                Shader.SetVtxVector4(DefaultShaderIds.HsLGCol, new Vector4(Renderer.GlobalHsLGCol.X, Renderer.GlobalHsLGCol.Y, Renderer.GlobalHsLGCol.Z, 0.00f));
-                Shader.SetVtxVector4(DefaultShaderIds.HsLSCol, new Vector4(Renderer.GlobalHsLSCol.X, Renderer.GlobalHsLSCol.Y, Renderer.GlobalHsLSCol.Z, 0.00f));
-                Shader.SetVtxVector4(DefaultShaderIds.HsLSDir, new Vector4(0.0f, 0.95703f, 0.28998f, 0.40f));
+                    GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "DisableVertexColor"), 0);
+                    int MaterialIndex = Mesh.BaseMesh.MaterialIndex;
 
-                bool isSelected = isRenderSelected || Mesh.BaseMesh.IsSelected;
+                    H3DMaterialParams MP = BaseModel.Materials[MaterialIndex].MaterialParams;
 
-                Mesh.Texture0Name = MS.Texture0Name;
-                Mesh.Texture1Name = MS.Texture1Name;
-                Mesh.Texture2Name = MS.Texture2Name;
+                    MaterialState MS = MaterialStates[Mesh.BaseMesh.MaterialIndex];
 
-                if (isSelected)
-                {
-                    GL.Enable(EnableCap.StencilTest);
-                    GL.Clear(ClearBufferMask.StencilBufferBit);
-                    GL.ClearStencil(0);
-                    GL.StencilFunc(StencilFunction.Always, 0x1, 0x1);
-                    GL.StencilOp(StencilOp.Keep, StencilOp.Replace, StencilOp.Replace);
-                }
+                    //For updating the UI, apply the current material data to the state unless it is animating
+                    if (!MS.IsAnimated)
+                        MS.Reset(BaseModel.Materials[MaterialIndex]);
 
-                Mesh.Render();
+                    Vector4 MatAmbient = new Vector4(
+                        MS.Ambient.R,
+                        MS.Ambient.G,
+                        MS.Ambient.B,
+                        MP.ColorScale);
 
-                if (isSelected)
-                {
-                    GL.Disable(EnableCap.Blend);
+                    Vector4 MatDiffuse = new Vector4(
+                        MS.Diffuse.R,
+                        MS.Diffuse.G,
+                        MS.Diffuse.B,
+                        MS.Diffuse.A);
 
-                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), new Vector4(1, 1, 1, 1));
+                    Vector4 MatSelect = new Vector4(
+                           MP.SelectionColor.X,
+                           MP.SelectionColor.Y,
+                           MP.SelectionColor.Z,
+                           MP.SelectionColor.W);
 
-                    GL.LineWidth(2);
-                    GL.StencilFunc(StencilFunction.Equal, 0x0, 0x1);
-                    GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
 
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    Shader.SetVtxVector4(DefaultShaderIds.TexTran, new Vector4(
+                        MS.Transforms[0].Row3.X,
+                        MS.Transforms[0].Row3.Y,
+                        MS.Transforms[1].Row3.X,
+                        MS.Transforms[1].Row3.Y));
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        //Apply certain matrices based on type. Note, env sphere camera uses normal matrix
+                        if (MP.TextureCoords[i].MappingType == H3DTextureMappingType.ProjectionMap)
+                            Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0 + (3 * i), Renderer.Camera.ViewMatrix * MS.Transforms[i]);
+                        else
+                            Shader.SetVtx3x4Array(DefaultShaderIds.TexMtx0 + (3 * i), MS.Transforms[i]);
+                    }
+
+                    Shader.SetVtxVector4(DefaultShaderIds.MatAmbi, MatAmbient);
+                    Shader.SetVtxVector4(DefaultShaderIds.MatDiff, MatDiffuse);
+
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.EmissionUniform), MS.Emission);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AmbientUniform), MS.Ambient);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.DiffuseUniform), MS.Diffuse);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Specular0Uniform), MS.Specular0);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Specular1Uniform), MS.Specular1);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant0Uniform), MS.Constant0);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant1Uniform), MS.Constant1);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant2Uniform), MS.Constant2);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant3Uniform), MS.Constant3);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant4Uniform), MS.Constant4);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.Constant5Uniform), MS.Constant5);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.CombBufferUniform), MP.TexEnvBufferColor.ToColor4());
+
+                    GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.AlphaRefUniform), MP.AlphaTest.Reference / 255.0f);
+                    GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), MatSelect);
+
+                    GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.DebugModeUniform), Renderer.DebugShadingMode);
+                    GL.Uniform1(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.DebugLUTModeUniform), Renderer.DebugLUTShadingMode);
+
+                    Shader.SetVtxVector4(DefaultShaderIds.HsLGCol, new Vector4(Renderer.GlobalHsLGCol.X, Renderer.GlobalHsLGCol.Y, Renderer.GlobalHsLGCol.Z, 0.00f));
+                    Shader.SetVtxVector4(DefaultShaderIds.HsLSCol, new Vector4(Renderer.GlobalHsLSCol.X, Renderer.GlobalHsLSCol.Y, Renderer.GlobalHsLSCol.Z, 0.00f));
+                    Shader.SetVtxVector4(DefaultShaderIds.HsLSDir, new Vector4(0.0f, 0.95703f, 0.28998f, 0.40f));
+
+                    bool isSelected = isRenderSelected || Mesh.BaseMesh.IsSelected;
+
+                    Mesh.Texture0Name = MS.Texture0Name;
+                    Mesh.Texture1Name = MS.Texture1Name;
+                    Mesh.Texture2Name = MS.Texture2Name;
+
+                    if (isSelected)
+                    {
+                        GL.Enable(EnableCap.StencilTest);
+                        GL.Clear(ClearBufferMask.StencilBufferBit);
+                        GL.ClearStencil(0);
+                        GL.StencilFunc(StencilFunction.Always, 0x1, 0x1);
+                        GL.StencilOp(StencilOp.Keep, StencilOp.Replace, StencilOp.Replace);
+                    }
+
                     Mesh.Render();
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-                    GL.Disable(EnableCap.StencilTest);
-                    GL.LineWidth(1);
-                }
+                    if (isSelected)
+                    {
+                        GL.Disable(EnableCap.Blend);
+
+                        GL.Uniform4(GL.GetUniformLocation(Shader.Handle, FragmentShaderGenerator.SelectionUniform), new Vector4(1, 1, 1, 1));
+
+                        GL.LineWidth(2);
+                        GL.StencilFunc(StencilFunction.Equal, 0x0, 0x1);
+                        GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                        Mesh.Render();
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                        GL.Disable(EnableCap.StencilTest);
+                        GL.LineWidth(1);
+                    }
+
+                    return true;
+                });
             }
         }
 
