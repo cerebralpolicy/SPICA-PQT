@@ -100,7 +100,7 @@ namespace SPICA.Rendering
         public void LoadCached(Renderer render)
         {
             foreach (var model in render.Models)
-                Models.Add(new Model(render, model));
+                Models.Add(new Model(this, model));
             foreach (var tex in render.Textures)
                 Textures.Add(tex.Key, tex.Value);
             foreach (var lut in render.LUTs)
