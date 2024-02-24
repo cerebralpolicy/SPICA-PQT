@@ -8,9 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SPICA\SPICA.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="OpenTK">
       <HintPath>OpenTK.dll</HintPath>
     </Reference>
