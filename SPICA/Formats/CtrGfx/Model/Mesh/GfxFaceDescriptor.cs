@@ -1,6 +1,8 @@
-﻿using SPICA.PICA.Commands;
+﻿using SPICA.Math3D;
+using SPICA.PICA.Commands;
 using SPICA.Serialization;
 using SPICA.Serialization.Attributes;
+using System.Numerics;
 
 namespace SPICA.Formats.CtrGfx.Model.Mesh
 {
@@ -29,7 +31,7 @@ namespace SPICA.Formats.CtrGfx.Model.Mesh
         private uint LocationPtr;
         private uint MemoryArea;
 
-        private uint BoundingVolume;
+        public uint BoundingVolume;
 
         [Ignore] public ushort[] Indices;
 
