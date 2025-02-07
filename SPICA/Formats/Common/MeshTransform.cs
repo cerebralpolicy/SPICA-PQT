@@ -8,7 +8,7 @@ using System.Numerics;
 
 namespace SPICA.Formats.Common
 {
-    static class MeshTransform
+    public static class MeshTransform
     {
         public static List<PICAVertex> GetVerticesList(H3DDict<H3DBone> Skeleton, H3DMesh Mesh)
         {
