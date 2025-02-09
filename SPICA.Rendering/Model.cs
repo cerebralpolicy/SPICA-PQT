@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
-
+using OpenTK.Mathematics;
 using SPICA.Formats.Common;
 using SPICA.Formats.CtrH3D;
 using SPICA.Formats.CtrH3D.Model;
@@ -579,8 +579,8 @@ namespace SPICA.Rendering
                 {
                     Vector4 P = Vertex.Position.ToVector4();
 
-                    Min = Vector4.Min(Min, P);
-                    Max = Vector4.Max(Max, P);
+                    Min = Vector4.MagnitudeMin(Min, P);
+                    Max = Vector4.MagnitudeMax(Max, P);
                 }
             }
 
