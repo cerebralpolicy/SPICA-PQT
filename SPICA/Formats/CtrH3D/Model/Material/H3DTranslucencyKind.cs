@@ -9,7 +9,6 @@
         LayerConfig4,
         LayerConfig5,
         LayerConfig6,
-        LayerConfig7,
-        LayerConfig8,
+        LayerConfig7
     }
 }
